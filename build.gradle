@@ -114,3 +114,8 @@ publishing {
         }
     }
 }
+
+// Fix resources folder not being loaded in Intellij
+sourceSets {
+    main { output.resourcesDir = output.classesDir }
+}
