@@ -1,4 +1,4 @@
-package com.goodtime.bruaket.TIleEntity;
+package com.goodtime.bruaket.entity;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;

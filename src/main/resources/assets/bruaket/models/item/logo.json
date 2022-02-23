@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "bruaket:items/logo"
+    "layer0": "bruaket:item/logo"
   }
 }
