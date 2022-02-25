@@ -2,39 +2,50 @@ package com.goodtime.bruaket.blocks;
 
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.entity.TileEntityBucket;
-import com.goodtime.bruaket.init.ModelMapper;
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.BlockHopper;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.statemap.StateMap;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-import javax.annotation.Nullable;
-
-public class Bucket extends BlockContainer {
+public class Bucket extends BlockHopper {
 
     String name;
 
-    public Bucket(Material materialIn, String registerName) {
-        super(materialIn);
+
+    public Bucket(String registerName) {
+        super();
         name = registerName;
         this.setRegistryName(Bruaket.MODID, registerName);
         this.setCreativeTab(Bruaket.CREATIVE_TAB);
         this.setUnlocalizedName(Bruaket.MODID+"." + registerName);
-        ModelMapper.registerBlockRender(this);
+        register();
+    }
+
+    private void register() {
+
         ForgeRegistries.BLOCKS.register(this);
-        registerItemBlock();
+
+        ForgeRegistries.ITEMS.register(new ItemBlock(this).setRegistryName(name));
+
+        modelRegister();
+
+        //GameRegistry.registerTileEntity(TileEntityEnderHopper.class, MODID + ":enderhopper");
     }
 
-    private void registerItemBlock(){
-        ItemBlock item = new ItemBlock(this);
-        item.setRegistryName(Bruaket.MODID, name);
-        ForgeRegistries.ITEMS.register(item);
+
+    private void modelRegister(){
+        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(this.getRegistryName(), "inventory"));
+        ModelLoader.setCustomStateMapper(
+                this, (new StateMap.Builder()).ignore(BlockHopper.ENABLED).build()
+        );
     }
 
 
-    @Nullable
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
         return new TileEntityBucket();

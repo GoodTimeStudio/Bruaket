@@ -20,12 +20,8 @@ public class Initializer {
 
     @SubscribeEvent
     public static void register(RegistryEvent.Register<Item> event){
-        logo = new ItemBruaket("logo").setCreativeTab(Bruaket.CREATIVE_TAB);
-        simple_bucket = new Bucket(Material.ROCK,"simple_bucket");
+        logo = new ItemBruaket("logo");
+        simple_bucket = new Bucket("simple_bucket");
     }
-
-
-
-
 
 }
