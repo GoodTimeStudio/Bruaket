@@ -40,5 +40,5 @@ ene[对应的能量] -->B
 3. 木符咒 Wood Talisman
 4. 金符咒 Iron Talisman
 5. 水符咒 Water Talisman
-6. 炎符咒 Ultraflamma Talisman
-7. 焱符咒 Maximaflamma Talisman
+6. 炎符咒 Ultra Flamma Talisman
+7. 焱符咒 Maxima Flamma Talisman
