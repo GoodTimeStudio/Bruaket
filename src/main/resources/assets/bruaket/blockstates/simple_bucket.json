@@ -1,9 +1,0 @@
-{
-    "variants": {
-        "facing=down": { "model": "bruaket:simple_bucket_down" },
-        "facing=north": { "model": "bruaket:simple_bucket_side" },
-        "facing=south": { "model": "bruaket:simple_bucket_side", "y": 180 },
-        "facing=west": { "model": "bruaket:simple_bucket_side", "y": 270 },
-        "facing=east": { "model": "bruaket:simple_bucket_side", "y": 90 }
-    }
-}
