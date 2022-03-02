@@ -25,17 +25,20 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Objects;
 
 public class Barrel extends BlockContainer {
 
     String name;
 
-     // FACING  方块的自定义属性，描述放置方块时玩家的朝向
-    public static final PropertyDirection FACING = PropertyDirection.create("facing", facing -> facing != EnumFacing.UP);
+    // FACING  方块的自定义属性，描述放置方块时玩家的朝向
+    public static final PropertyDirection FACING = PropertyDirection.create("facing", facing -> facing == EnumFacing.DOWN);
 
-     // ENABLED  方块的自定义属性，描述该方块的开关情况
+    // ENABLED  方块的自定义属性，描述该方块的开关情况
     public static final PropertyBool ENABLED = PropertyBool.create("enabled");
 
     public Barrel(String registerName) {
@@ -56,12 +59,12 @@ public class Barrel extends BlockContainer {
 
         modelRegister();
 
-        //GameRegistry.registerTileEntity(TileEntityEnderHopper.class, MODID + ":enderhopper");
+        GameRegistry.registerTileEntity(TileEntityBarrel.class, Objects.requireNonNull(this.getRegistryName()));
     }
 
 
     private void modelRegister(){
-        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(this.getRegistryName(), "inventory"));
+        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(Objects.requireNonNull(this.getRegistryName()), "inventory"));
         ModelLoader.setCustomStateMapper(
                 this, (new StateMap.Builder()).ignore(ENABLED).build()
         );
@@ -82,18 +85,11 @@ public class Barrel extends BlockContainer {
         return false;
     }
 
-   /* @Override
+
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
-        EnumFacing enumfacing = facing.getOpposite();
-
-        if (enumfacing == EnumFacing.UP)
-        {
-            enumfacing = EnumFacing.DOWN;
-        }
-
-        return this.getDefaultState().withProperty(FACING, enumfacing).withProperty(ENABLED, Boolean.TRUE);
-    }*/
+        return this.getDefaultState().withProperty(FACING, EnumFacing.DOWN).withProperty(ENABLED, Boolean.TRUE);
+    }
 
     //所使用的TileEntity
     @Override
@@ -167,6 +163,16 @@ public class Barrel extends BlockContainer {
         }
 
         return i;
+    }
+
+    public static boolean isEnabled(int meta)
+    {
+        return (meta & 8) != 8;
+    }
+
+    public static EnumFacing getFacing(int meta)
+    {
+        return EnumFacing.getFront(meta & 7);
     }
 
     @Override

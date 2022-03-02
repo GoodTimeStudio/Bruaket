@@ -1,7 +1,7 @@
 package com.goodtime.bruaket.entity;
 
 
-import net.minecraft.block.BlockHopper;
+import com.goodtime.bruaket.blocks.Barrel;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.ItemStackHelper;
@@ -19,9 +19,11 @@ public class TileEntityBarrel extends TileEntityHopper {
 
     private NonNullList<ItemStack> inventory = NonNullList.<ItemStack>withSize(10, ItemStack.EMPTY);
 
+    //传输速度
     private int transferCooldown = -1;
     private long tickedGameTime;
 
+    //读取NBT，确保物品在重启游戏后不会丢失且数量不变
     public void readFromNBT(NBTTagCompound compound)
     {
         super.readFromNBT(compound);
@@ -40,6 +42,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         this.transferCooldown = compound.getInteger("TransferCooldown");
     }
 
+    //存储NBT
     public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
         super.writeToNBT(compound);
@@ -74,22 +77,15 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
     }
 
-    protected boolean updateBarrel()
-    {
-        if (this.world != null && !this.world.isRemote)
-        {
-            if (!this.isOnTransferCooldown() && BlockHopper.isEnabled(this.getBlockMetadata()))
-            {
+    //漏斗执行的需要时间的操作
+    protected boolean updateBarrel() {
+        if (this.world != null && !this.world.isRemote) {
+            if (!this.isOnTransferCooldown() && Barrel.isEnabled(this.getBlockMetadata())) {
                 boolean flag = false;
 
-                if (!this.isInventoryEmpty())
-                {
+                //如果库存不为空，输出物品
+                if (!this.isInventoryEmpty()) {
                     flag = this.transferItemsOut();
-                }
-
-                if (!this.isFull())
-                {
-                    flag = pullItems(this) || flag;
                 }
 
                 if (flag)
@@ -102,16 +98,16 @@ public class TileEntityBarrel extends TileEntityHopper {
 
             return false;
         }
-        else
-        {
+        else {
             return false;
         }
     }
 
+    //传输物品，如果底部方块没有储存功能就传输失败
     private boolean transferItemsOut()
     {
         if (net.minecraftforge.items.VanillaInventoryCodeHooks.insertHook(this)) { return true; }
-        IInventory iinventory = this.getInventoryForHopperTransfer();
+        IInventory iinventory = this.getInventoryForBarrelTransfer();
 
         if (iinventory == null)
         {
@@ -119,7 +115,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
         else
         {
-            EnumFacing enumfacing = BlockHopper.getFacing(this.getBlockMetadata()).getOpposite();
+            EnumFacing enumfacing = Barrel.getFacing(this.getBlockMetadata()).getOpposite();
 
             if (this.isInventoryFull(iinventory, enumfacing))
             {
@@ -149,9 +145,10 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
     }
 
-    private IInventory getInventoryForHopperTransfer()
+    //获取桶底部的方块的库存（inventory），如果没有库存就返回null
+    private IInventory getInventoryForBarrelTransfer()
     {
-        EnumFacing enumfacing = BlockHopper.getFacing(this.getBlockMetadata());
+        EnumFacing enumfacing = Barrel.getFacing(this.getBlockMetadata());
         return getInventoryAtPosition(this.getWorld(), this.getXPos() + (double)enumfacing.getFrontOffsetX(), this.getYPos() + (double)enumfacing.getFrontOffsetY(), this.getZPos() + (double)enumfacing.getFrontOffsetZ());
     }
 
@@ -218,18 +215,21 @@ public class TileEntityBarrel extends TileEntityHopper {
         return true;
     }
 
-
-    private boolean isFull()
-    {
-        for (ItemStack itemstack : this.inventory)
-        {
-            if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize())
-            {
+    //全部格子是否都满了
+    private boolean isFull() {
+        //遍历所有格子，如果格子是空的，或者物品的最大量不为可储存的最大量
+        for (ItemStack itemstack : this.inventory) {
+            if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize()) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    public int getInventoryStackLimit()
+    {
+        return 64;
     }
 
     protected NonNullList<ItemStack> getItems()
