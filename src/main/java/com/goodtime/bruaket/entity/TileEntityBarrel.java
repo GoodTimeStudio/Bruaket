@@ -2,22 +2,26 @@ package com.goodtime.bruaket.entity;
 
 
 import com.goodtime.bruaket.blocks.Barrel;
-import net.minecraft.block.BlockSourceImpl;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
-import net.minecraft.dispenser.IBehaviorDispenseItem;
 import net.minecraft.dispenser.PositionImpl;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.IHopper;
-import net.minecraft.tileentity.TileEntityDispenser;
 import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,18 +37,15 @@ public class TileEntityBarrel extends TileEntityHopper {
     private long tickedGameTime;
 
     //读取NBT，确保物品在重启游戏后不会丢失且数量不变
-    public void readFromNBT(NBTTagCompound compound)
-    {
+    public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
         this.inventory = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
-        if (!this.checkLootAndRead(compound))
-        {
+        if (!this.checkLootAndRead(compound)) {
             ItemStackHelper.loadAllItems(compound, this.inventory);
         }
 
-        if (compound.hasKey("CustomName", 8))
-        {
+        if (compound.hasKey("CustomName", 8)) {
             this.customName = compound.getString("CustomName");
         }
 
@@ -52,34 +53,28 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
     //存储NBT
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
-    {
+    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
 
-        if (!this.checkLootAndWrite(compound))
-        {
+        if (!this.checkLootAndWrite(compound)) {
             ItemStackHelper.saveAllItems(compound, this.inventory);
         }
 
         compound.setInteger("TransferCooldown", this.transferCooldown);
 
-        if (this.hasCustomName())
-        {
+        if (this.hasCustomName()) {
             compound.setString("CustomName", this.customName);
         }
 
         return compound;
     }
 
-    public void update()
-    {
-        if (this.world != null && !this.world.isRemote)
-        {
+    public void update() {
+        if (this.world != null && !this.world.isRemote) {
             --this.transferCooldown;
             this.tickedGameTime = this.world.getTotalWorldTime();
 
-            if (!this.isOnTransferCooldown())
-            {
+            if (!this.isOnTransferCooldown()) {
                 this.setTransferCooldown(0);
                 this.updateBarrel();
             }
@@ -111,8 +106,7 @@ public class TileEntityBarrel extends TileEntityHopper {
             }
 
             return false;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -122,36 +116,38 @@ public class TileEntityBarrel extends TileEntityHopper {
         if (ret != null) return ret;*/
 
         List<EntityItem> items = getCaptureItems(hopper.getWorld(), hopper.getXPos(), hopper.getYPos(), hopper.getZPos());
-        if(!items.isEmpty()){
+        if (!items.isEmpty()) {
             EntityItem entityitem = items.get(0);
-            return putDropInInventoryAllSlots((IInventory)null, hopper, entityitem);
+            return putDropInInventoryAllSlots((IInventory) null, hopper, entityitem);
         }
         return false;
     }
 
     //传输物品，如果底部方块没有储存功能就传输失败
     private boolean transferItemsOut() {
-        if (net.minecraftforge.items.VanillaInventoryCodeHooks.insertHook(this)) { return true; }
+        if (net.minecraftforge.items.VanillaInventoryCodeHooks.insertHook(this)) {
+            return true;
+        }
         IInventory iinventory = this.getInventoryForBarrelTransfer();
 
         //如果检测不到有存储功能的方块，就把合成产出丢出来
         if (iinventory == null) {
 
-            for (int i = 0; i < this.getSizeInventory() - 1; i++) {
-                this.setInventorySlotContents(i, ItemStack.EMPTY);
+            if (canDispense(this)) {
+                for (int i = 0; i < this.getSizeInventory() - 1; i++) {
+                    this.setInventorySlotContents(i, ItemStack.EMPTY);
+                }
+                dispense(this, new ItemStack(Items.APPLE));
+                return true;
             }
-
-            dispense(this,new ItemStack(Items.APPLE));
-            return true;
-        }
-        else {
+            return false;
+        } else {
             EnumFacing enumfacing = Barrel.getFacing(this.getBlockMetadata()).getOpposite();
 
             if (this.isInventoryFull(iinventory, enumfacing)) {
                 return false;
-            }
-            else {
-                for (int i = 0; i < this.getSizeInventory()-1; ++i) {
+            } else {
+                for (int i = 0; i < this.getSizeInventory() - 1; ++i) {
                     if (!this.getStackInSlot(i).isEmpty()) {
                         ItemStack itemstack = this.getStackInSlot(i).copy();
                         ItemStack itemstack1 = putStackInInventoryAllSlots(this, iinventory, this.decrStackSize(i, 1), enumfacing);
@@ -168,8 +164,20 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
     }
 
+    //如果桶下方的方块没有存储功能且是空气，才可以丢出合成产物
+    protected boolean canDispense(IHopper barrel) {
+        World worldIn = barrel.getWorld();
+        int x = MathHelper.floor(barrel.getXPos());
+        int y = MathHelper.floor(barrel.getYPos()) - 1;
+        int z = MathHelper.floor(barrel.getZPos());
+
+        Block atDown = worldIn.getBlockState(new BlockPos(x, y, z)).getBlock();
+
+        return atDown.equals(Blocks.AIR);
+    }
+
     //冒尖冒尖！
-    private void dispense(IHopper barrel, ItemStack itemstack){
+    protected void dispense(IHopper barrel, ItemStack itemstack) {
         double x = barrel.getXPos();
         double y = barrel.getYPos() - 1;
         double z = barrel.getZPos();
@@ -179,7 +187,7 @@ public class TileEntityBarrel extends TileEntityHopper {
     //获取桶底部的方块的库存（inventory），如果没有库存就返回null
     private IInventory getInventoryForBarrelTransfer() {
         EnumFacing enumfacing = Barrel.getFacing(this.getBlockMetadata());
-        return getInventoryAtPosition(this.getWorld(), this.getXPos() + (double)enumfacing.getFrontOffsetX(), this.getYPos() + (double)enumfacing.getFrontOffsetY(), this.getZPos() + (double)enumfacing.getFrontOffsetZ());
+        return getInventoryAtPosition(this.getWorld(), this.getXPos() + (double) enumfacing.getFrontOffsetX(), this.getYPos() + (double) enumfacing.getFrontOffsetY(), this.getZPos() + (double) enumfacing.getFrontOffsetZ());
     }
 
     private boolean isOnTransferCooldown() {
@@ -196,15 +204,13 @@ public class TileEntityBarrel extends TileEntityHopper {
 
     private boolean isInventoryFull(IInventory inventoryIn, EnumFacing side) {
         if (inventoryIn instanceof ISidedInventory) {
-            ISidedInventory isidedinventory = (ISidedInventory)inventoryIn;
+            ISidedInventory isidedinventory = (ISidedInventory) inventoryIn;
             int[] aint = isidedinventory.getSlotsForFace(side);
 
-            for (int k : aint)
-            {
+            for (int k : aint) {
                 ItemStack itemstack1 = isidedinventory.getStackInSlot(k);
 
-                if (itemstack1.isEmpty() || itemstack1.getCount() != itemstack1.getMaxStackSize())
-                {
+                if (itemstack1.isEmpty() || itemstack1.getCount() != itemstack1.getMaxStackSize()) {
                     return false;
                 }
             }
@@ -241,9 +247,24 @@ public class TileEntityBarrel extends TileEntityHopper {
                 return false;
             }
         }
-
         return true;
     }
+
+    public static int getLastItemIndex(IInventory inventory) {
+        for (int i = inventory.getSizeInventory() - 2; i >= 0; i--) {
+            ItemStack itemStack = inventory.getStackInSlot(i);
+            if (!itemStack.isEmpty()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    //抛出合成物品
+    public static void dropCraftItem(World worldIn, BlockPos pos, ItemStack itemStack){
+        InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ()+1, itemStack);
+    }
+
 
     public int getInventoryStackLimit() {
         return 64;

@@ -114,14 +114,26 @@ public class Barrel extends BlockContainer {
         }
     }
 
+    @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        TileEntity tileentity = worldIn.getTileEntity(pos);
+        if(tileentity instanceof TileEntityBarrel){
+            int index = TileEntityBarrel.getLastItemIndex((TileEntityBarrel)tileentity);
+            if(index != -1){
+                ItemStack itemStack = ((TileEntityBarrel) tileentity).getStackInSlot(index);
+                if(playerIn.addItemStackToInventory(itemStack)){
+                    ((TileEntityBarrel) tileentity).setInventorySlotContents(index, ItemStack.EMPTY);
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
-    {
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
         TileEntity tileentity = worldIn.getTileEntity(pos);
 
-        if (tileentity instanceof TileEntityBarrel)
-        {
+        if (tileentity instanceof TileEntityBarrel) {
             InventoryHelper.dropInventoryItems(worldIn, pos, (TileEntityBarrel)tileentity);
             worldIn.updateComparatorOutputLevel(pos, this);
         }
