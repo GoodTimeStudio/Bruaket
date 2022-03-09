@@ -132,14 +132,12 @@ public class TileEntityBarrel extends TileEntityHopper {
 
         //如果检测不到有存储功能的方块，就把合成产出丢出来
         if (iinventory == null) {
-
+/*
             if (canDispense(this)) {
-                for (int i = 0; i < this.getSizeInventory() - 1; i++) {
-                    this.setInventorySlotContents(i, ItemStack.EMPTY);
-                }
-                dispense(this, new ItemStack(Items.APPLE));
+                //抛出合成产品，暂未完成。
+                //dispense(this, new ItemStack(Items.APPLE));
                 return true;
-            }
+            }*/
             return false;
         } else {
             EnumFacing enumfacing = Barrel.getFacing(this.getBlockMetadata()).getOpposite();
@@ -165,7 +163,7 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
     //如果桶下方的方块没有存储功能且是空气，才可以丢出合成产物
-    protected boolean canDispense(IHopper barrel) {
+    protected boolean canDrop(IHopper barrel) {
         World worldIn = barrel.getWorld();
         int x = MathHelper.floor(barrel.getXPos());
         int y = MathHelper.floor(barrel.getYPos()) - 1;
@@ -177,12 +175,54 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
     //冒尖冒尖！
-    protected void dispense(IHopper barrel, ItemStack itemstack) {
-        double x = barrel.getXPos();
-        double y = barrel.getYPos() - 1;
-        double z = barrel.getZPos();
-        BehaviorDefaultDispenseItem.doDispense(barrel.getWorld(), itemstack, 3, EnumFacing.DOWN, new PositionImpl(x, y, z));
+    protected void drop(ItemStack itemstack) {
+        World worldIn = this.world;
+        double x = this.getXPos();
+        double y = this.getYPos() - 1;
+        double z = this.getZPos();
+        BehaviorDefaultDispenseItem.doDispense(worldIn, itemstack, 3, EnumFacing.DOWN, new PositionImpl(x, y, z));
     }
+
+    //获取最后一个放入的物品
+    public ItemStack getLastItem(){
+        ItemStack itemStack = null;
+        for (int i = this.getSizeInventory()-2; i >= 0;  i--) {
+            itemStack = this.getStackInSlot(i);
+            if (!itemStack.isEmpty()){
+                this.setInventorySlotContents(i, ItemStack.EMPTY);
+                break;
+            }
+        }
+
+        return itemStack;
+    }
+
+    //抛出所有储存的物品
+    public static void dropAllItems(TileEntityBarrel tileEntity){
+
+        if(tileEntity.canDrop(tileEntity)){
+            for (int i = 0; i < tileEntity.getSizeInventory(); i++) {
+                ItemStack itemStack = tileEntity.getStackInSlot(i);
+                if(!itemStack.isEmpty()){
+                    tileEntity.drop(itemStack);
+                    tileEntity.setInventorySlotContents(i, ItemStack.EMPTY);
+                }
+            }
+        }
+    }
+
+    //抛出最后放入的物品
+    public static void dropLastItem(TileEntityBarrel tileEntity){
+
+        if(tileEntity.canDrop(tileEntity)){
+            ItemStack itemStack = tileEntity.getLastItem();
+            if(itemStack != null) {
+                tileEntity.drop(itemStack);
+            }
+        }
+
+    }
+
 
     //获取桶底部的方块的库存（inventory），如果没有库存就返回null
     private IInventory getInventoryForBarrelTransfer() {
@@ -250,20 +290,6 @@ public class TileEntityBarrel extends TileEntityHopper {
         return true;
     }
 
-    public static int getLastItemIndex(IInventory inventory) {
-        for (int i = inventory.getSizeInventory() - 2; i >= 0; i--) {
-            ItemStack itemStack = inventory.getStackInSlot(i);
-            if (!itemStack.isEmpty()) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    //抛出合成物品
-    public static void dropCraftItem(World worldIn, BlockPos pos, ItemStack itemStack){
-        InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ()+1, itemStack);
-    }
 
 
     public int getInventoryStackLimit() {

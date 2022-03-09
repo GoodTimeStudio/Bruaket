@@ -3,6 +3,7 @@ package com.goodtime.bruaket.blocks;
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.entity.TileEntityBarrel;
 import net.minecraft.block.BlockContainer;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
@@ -10,6 +11,8 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMap;
+import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
+import net.minecraft.dispenser.PositionImpl;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -106,27 +109,30 @@ public class Barrel extends BlockContainer {
         if (stack.hasDisplayName()) {
             if (tileentity != null) {
                 tileentity.setCustomName(stack.getDisplayName());
+                if(placer instanceof EntityPlayer) {
+                    tileentity.setOwner(placer.getUniqueID());
+                }
             }
         }
 
-        if(placer instanceof EntityPlayer) {
-            tileentity.setOwner(placer.getUniqueID());
-        }
+
     }
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        TileEntity tileentity = worldIn.getTileEntity(pos);
-        if(tileentity instanceof TileEntityBarrel){
-            int index = TileEntityBarrel.getLastItemIndex((TileEntityBarrel)tileentity);
-            if(index != -1){
-                ItemStack itemStack = ((TileEntityBarrel) tileentity).getStackInSlot(index);
-                if(playerIn.addItemStackToInventory(itemStack)){
-                    ((TileEntityBarrel) tileentity).setInventorySlotContents(index, ItemStack.EMPTY);
+        if (worldIn.isRemote) {
+            return true;
+        }else {
+            TileEntity tileentity = worldIn.getTileEntity(pos);
+            if(tileentity instanceof TileEntityBarrel){
+                if (playerIn.isSneaking()){
+                    TileEntityBarrel.dropAllItems((TileEntityBarrel)tileentity);
+                }else {
+                    TileEntityBarrel.dropLastItem((TileEntityBarrel)tileentity);
                 }
             }
+            return true;
         }
-        return false;
     }
 
     @Override
