@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Mod.EventBusSubscriber
-public class Initializer {
+public class ItemInitializer {
     //Block
     public static Block wooden_barrel;
 

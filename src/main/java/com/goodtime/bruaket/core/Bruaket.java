@@ -1,6 +1,6 @@
 package com.goodtime.bruaket.core;
 
-import com.goodtime.bruaket.init.Initializer;
+import com.goodtime.bruaket.init.ItemInitializer;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
@@ -19,7 +19,7 @@ public enum Bruaket {
     public static final CreativeTabs CREATIVE_TAB = new CreativeTabs("Bruaket") {
         @Override
         public ItemStack getTabIconItem() {
-            return new ItemStack(Initializer.logo);
+            return new ItemStack(ItemInitializer.logo);
         }
     };
 

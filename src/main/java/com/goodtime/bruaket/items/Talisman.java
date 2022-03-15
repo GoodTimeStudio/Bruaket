@@ -3,7 +3,6 @@ package com.goodtime.bruaket.items;
 import com.goodtime.bruaket.core.Bruaket;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 

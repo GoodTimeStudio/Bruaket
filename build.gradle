@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
     }
 }
 
@@ -130,7 +130,8 @@ publishing {
     }
 }
 
+/*
 // Fix resources folder not being loaded in Intellij
 sourceSets {
     main { output.resourcesDir = output.classesDir }
-}
+}*/
