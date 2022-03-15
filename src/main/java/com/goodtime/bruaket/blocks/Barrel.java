@@ -128,7 +128,7 @@ public class Barrel extends BlockContainer {
                 if (playerIn.isSneaking()){
                     TileEntityBarrel.dropAllItems((TileEntityBarrel)tileentity);
                 }else {
-                    TileEntityBarrel.dropLastItem((TileEntityBarrel)tileentity);
+                    TileEntityBarrel.dropItem((TileEntityBarrel)tileentity);
                 }
             }
             return true;
@@ -159,8 +159,7 @@ public class Barrel extends BlockContainer {
         return true;
     }
 
-    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
-    {
+    public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos) {
         return Container.calcRedstone(worldIn.getTileEntity(pos));
     }
 
