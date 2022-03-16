@@ -47,6 +47,7 @@ public class Barrel extends BlockContainer {
     public Barrel(String registerName) {
         super(Material.ROCK);
         name = registerName;
+        this.setHardness(3.0F);
         this.setRegistryName(Bruaket.MODID, registerName);
         this.setCreativeTab(Bruaket.CREATIVE_TAB);
         this.setUnlocalizedName(Bruaket.MODID+"." + registerName);
@@ -114,8 +115,6 @@ public class Barrel extends BlockContainer {
                 }
             }
         }
-
-
     }
 
     @Override
@@ -132,6 +131,14 @@ public class Barrel extends BlockContainer {
                 }
             }
             return true;
+        }
+    }
+
+    @Override
+    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn){
+        TileEntity tileentity = worldIn.getTileEntity(pos);
+        if(tileentity instanceof  TileEntityBarrel){
+            TileEntityBarrel.dropTailsman((TileEntityBarrel) tileentity);
         }
     }
 

@@ -22,6 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -110,6 +111,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
     }
 
+    //塞入掉落物
     public static boolean pullItems(IHopper hopper) {
        /* Boolean ret = net.minecraftforge.items.VanillaInventoryCodeHooks.extractHook(hopper);
         if (ret != null) return ret;*/
@@ -117,14 +119,13 @@ public class TileEntityBarrel extends TileEntityHopper {
         List<EntityItem> items = getCaptureItems(hopper.getWorld(), hopper.getXPos(), hopper.getYPos(), hopper.getZPos());
         if (!items.isEmpty()) {
             EntityItem entityitem = items.get(0);
-            return putDropInInventoryAllSlots((IInventory) null, hopper, entityitem);
+            return putDropInInventoryAllSlots(hopper, entityitem);
         }
         return false;
     }
 
     //将掉落物塞进桶里，如果是符咒就塞最后一个格子里
-    public static boolean putDropInInventoryAllSlots(IInventory source, IInventory destination, EntityItem entity)
-    {
+    public static boolean putDropInInventoryAllSlots(IInventory destination, EntityItem entity) {
         boolean flag = false;
 
         if (entity == null)
@@ -140,7 +141,7 @@ public class TileEntityBarrel extends TileEntityHopper {
             if(item instanceof Talisman){
                 itemstack1 = putTailsman(destination, itemstack, 0);
             }else {
-                itemstack1 = putStackInInventoryAllSlots(source, destination, itemstack, (EnumFacing)null);
+                itemstack1 = putCraftInInventorySlots(destination, itemstack, (EnumFacing)null);
             }
 
             if(itemstack1 != null){
@@ -156,6 +157,67 @@ public class TileEntityBarrel extends TileEntityHopper {
             return flag;
         }
     }
+
+    public static ItemStack putCraftInInventorySlots(IInventory destination, ItemStack stack, @Nullable EnumFacing direction) {
+
+        int i = destination.getSizeInventory();
+
+        for (int j = 1; j < i && !stack.isEmpty(); ++j) {
+            stack = insertCraft(destination, stack, j, direction);
+        }
+
+        return stack;
+    }
+
+
+    public static boolean canInsertItemInSlot(IInventory inventoryIn, ItemStack stack, int index, EnumFacing side) {
+        if (!inventoryIn.isItemValidForSlot(index, stack)) {
+            return false;
+        }
+        else {
+            return !(inventoryIn instanceof ISidedInventory) || ((ISidedInventory)inventoryIn).canInsertItem(index, stack, side);
+        }
+    }
+
+    public static boolean canCombine(ItemStack stack1, ItemStack stack2) {
+        if (stack1.getItem() != stack2.getItem())
+        {
+            return false;
+        }
+        else if (stack1.getMetadata() != stack2.getMetadata())
+        {
+            return false;
+        }
+        else if (stack1.getCount() > stack1.getMaxStackSize())
+        {
+            return false;
+        }
+        else
+        {
+            return ItemStack.areItemStackTagsEqual(stack1, stack2);
+        }
+    }
+
+    public static ItemStack insertCraft(IInventory destination, ItemStack stack, int index, EnumFacing direction) {
+        ItemStack itemstack = destination.getStackInSlot(index);
+
+        if (canInsertItemInSlot(destination, stack, index, direction)) {
+
+            if (itemstack.isEmpty()) {
+                destination.setInventorySlotContents(index, stack);
+                stack = ItemStack.EMPTY;
+
+            } else if (canCombine(itemstack, stack)) {
+                int i = stack.getMaxStackSize() - itemstack.getCount();
+                int j = Math.min(stack.getCount(), i);
+                stack.shrink(j);
+                itemstack.grow(j);
+            }
+        }
+
+        return stack;
+    }
+
 
     private static ItemStack putTailsman(IInventory destination, ItemStack tailsman, int index){
 
@@ -233,11 +295,12 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
     //获取最后一个放入的物品
-    public ItemStack getLastItem(){
+    public ItemStack getItem(){
         ItemStack itemStack = null;
 
         if(isCraftEmpty() && haveTailMan()){
             itemStack = this.getStackInSlot(tailsmanSlot());
+            this.setInventorySlotContents(tailsmanSlot(),ItemStack.EMPTY);
             return itemStack;
         }
 
@@ -255,18 +318,16 @@ public class TileEntityBarrel extends TileEntityHopper {
     //抛出所有储存的物品(除了符文)
     public static void dropAllItems(TileEntityBarrel tileEntity){
 
-        if(tileEntity.canDrop(tileEntity)){
-            if(tileEntity.canDrop(tileEntity) && tileEntity.isCraftEmpty() && tileEntity.haveTailMan()){
-                ItemStack itemStack = tileEntity.getStackInSlot(tileEntity.tailsmanSlot());
-                tileEntity.drop(itemStack);
-                tileEntity.setInventorySlotContents(tileEntity.tailsmanSlot(), ItemStack.EMPTY);
-            } else {
-                for (int i = 1; i < tileEntity.getSizeInventory(); i++) {
-                    ItemStack itemStack = tileEntity.getStackInSlot(i);
-                    if(!itemStack.isEmpty()){
-                        tileEntity.drop(itemStack);
-                        tileEntity.setInventorySlotContents(i, ItemStack.EMPTY);
-                    }
+        if(tileEntity.isCraftEmpty() && tileEntity.haveTailMan()){
+            ItemStack itemStack = tileEntity.getStackInSlot(tileEntity.tailsmanSlot());
+            tileEntity.drop(itemStack);
+            tileEntity.setInventorySlotContents(tileEntity.tailsmanSlot(), ItemStack.EMPTY);
+        } else {
+            for (int i = 1; i < tileEntity.getSizeInventory(); i++) {
+                ItemStack itemStack = tileEntity.getStackInSlot(i);
+                if(!itemStack.isEmpty()){
+                    tileEntity.drop(itemStack);
+                    tileEntity.setInventorySlotContents(i, ItemStack.EMPTY);
                 }
             }
         }
@@ -276,12 +337,19 @@ public class TileEntityBarrel extends TileEntityHopper {
     //抛出最后放入的物品
     public static void dropItem(TileEntityBarrel tileEntity){
         if(tileEntity.canDrop(tileEntity)){
-            ItemStack itemStack = tileEntity.getLastItem();
+            ItemStack itemStack = tileEntity.getItem();
             if(itemStack != null) {
                 tileEntity.drop(itemStack);
             }
         }
 
+    }
+
+    public static void dropTailsman(TileEntityBarrel tileEntity){
+        if(tileEntity.canDrop(tileEntity) && tileEntity.haveTailMan()){
+            tileEntity.drop(tileEntity.getStackInSlot(0));
+            tileEntity.setInventorySlotContents(0,ItemStack.EMPTY);
+        }
     }
 
     //获取桶底部的方块的库存（inventory），如果没有库存就返回null
@@ -330,7 +398,7 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
     public boolean haveTailMan(){
-        return !inventory.get(inventory.size()-1).isEmpty();
+        return !inventory.get(tailsmanSlot()).isEmpty();
     }
 
     //全部合成栏是否为空
