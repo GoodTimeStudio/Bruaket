@@ -3,6 +3,8 @@ package com.goodtime.bruaket.entity;
 
 import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.items.Talisman;
+import com.goodtime.bruaket.recipe.RecipeList;
+import com.goodtime.bruaket.recipe.bruaket.IRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.PositionImpl;
@@ -23,6 +25,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +34,8 @@ public class TileEntityBarrel extends TileEntityHopper {
     private UUID owner = null;
 
     private NonNullList<ItemStack> inventory = NonNullList.<ItemStack>withSize(10, ItemStack.EMPTY);
+
+    private final LinkedList<IRecipe> recipeList = new LinkedList<>();
 
     //传输速度
     private int transferCooldown = -1;
@@ -67,6 +72,14 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
 
         return compound;
+    }
+
+    public void setRecipeList(LinkedList<IRecipe> recipeList){
+        this.recipeList.addAll(recipeList);
+    }
+
+    public LinkedList<IRecipe> getRecipeList(){
+        return recipeList;
     }
 
     public void update() {
@@ -112,34 +125,32 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
     //塞入掉落物
-    public static boolean pullItems(IHopper hopper) {
+    public static boolean pullItems(TileEntityBarrel barrel) {
        /* Boolean ret = net.minecraftforge.items.VanillaInventoryCodeHooks.extractHook(hopper);
         if (ret != null) return ret;*/
 
-        List<EntityItem> items = getCaptureItems(hopper.getWorld(), hopper.getXPos(), hopper.getYPos(), hopper.getZPos());
+        List<EntityItem> items = getCaptureItems(barrel.getWorld(), barrel.getXPos(), barrel.getYPos(), barrel.getZPos());
         if (!items.isEmpty()) {
             EntityItem entityitem = items.get(0);
-            return putDropInInventoryAllSlots(hopper, entityitem);
+            return putDropInInventoryAllSlots((TileEntityBarrel) barrel, entityitem);
         }
         return false;
     }
 
     //将掉落物塞进桶里，如果是符咒就塞最后一个格子里
-    public static boolean putDropInInventoryAllSlots(IInventory destination, EntityItem entity) {
+    public static boolean putDropInInventoryAllSlots(TileEntityBarrel destination, EntityItem entity) {
         boolean flag = false;
 
-        if (entity == null)
-        {
+        if (entity == null) {
             return false;
         }
-        else
-        {
+        else {
             ItemStack itemstack = entity.getItem().copy();
             Item item = itemstack.getItem();
             ItemStack itemstack1;
 
             if(item instanceof Talisman){
-                itemstack1 = putTailsman(destination, itemstack, 0);
+                itemstack1 = putTailsman(destination, itemstack);
             }else {
                 itemstack1 = putCraftInInventorySlots(destination, itemstack, (EnumFacing)null);
             }
@@ -158,7 +169,19 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
     }
 
-    public static ItemStack putCraftInInventorySlots(IInventory destination, ItemStack stack, @Nullable EnumFacing direction) {
+    private static ItemStack putTailsman(TileEntityBarrel destination, ItemStack tailsman){
+        if(destination.getStackInSlot(0).isEmpty()){
+            destination.setInventorySlotContents(0, tailsman);
+            destination.setRecipeList(RecipeList.instance.getRecipeListByTailsMan((Talisman)tailsman.getItem()));
+            System.out.println(destination.getRecipeList().size());
+            tailsman = ItemStack.EMPTY;
+            return tailsman;
+        }else {
+            return null;
+        }
+    }
+
+    public static ItemStack putCraftInInventorySlots(TileEntityBarrel destination, ItemStack stack, @Nullable EnumFacing direction) {
 
         int i = destination.getSizeInventory();
 
@@ -170,7 +193,7 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
 
-    public static boolean canInsertItemInSlot(IInventory inventoryIn, ItemStack stack, int index, EnumFacing side) {
+    public static boolean canInsertItemInSlot(TileEntityBarrel inventoryIn, ItemStack stack, int index, EnumFacing side) {
         if (!inventoryIn.isItemValidForSlot(index, stack)) {
             return false;
         }
@@ -192,13 +215,12 @@ public class TileEntityBarrel extends TileEntityHopper {
         {
             return false;
         }
-        else
-        {
+        else {
             return ItemStack.areItemStackTagsEqual(stack1, stack2);
         }
     }
 
-    public static ItemStack insertCraft(IInventory destination, ItemStack stack, int index, EnumFacing direction) {
+    public static ItemStack insertCraft(TileEntityBarrel destination, ItemStack stack, int index, EnumFacing direction) {
         ItemStack itemstack = destination.getStackInSlot(index);
 
         if (canInsertItemInSlot(destination, stack, index, direction)) {
@@ -216,18 +238,6 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
 
         return stack;
-    }
-
-
-    private static ItemStack putTailsman(IInventory destination, ItemStack tailsman, int index){
-
-        if(destination.getStackInSlot(index).isEmpty()){
-            destination.setInventorySlotContents(index, tailsman);
-            tailsman = ItemStack.EMPTY;
-            return tailsman;
-        }else {
-            return null;
-        }
     }
 
     //传输物品，如果底部方块没有储存功能就传输失败

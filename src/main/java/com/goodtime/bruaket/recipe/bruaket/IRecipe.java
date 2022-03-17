@@ -1,11 +1,21 @@
 package com.goodtime.bruaket.recipe.bruaket;
 
+import com.goodtime.bruaket.items.Talisman;
+import com.goodtime.bruaket.recipe.IngredientStack;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
-public interface IRecipe extends BRecipe{
+import java.util.List;
+
+public interface IRecipe{
+
+    ItemStack getRecipeOutput ();
+
+    Talisman getTailsman();
+
+    List<IngredientStack> getIngredients ();
 
     /**
      * @return Returns the index within the main Bruaket Recipe List that this recipe is

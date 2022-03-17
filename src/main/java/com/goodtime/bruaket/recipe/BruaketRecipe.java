@@ -1,6 +1,7 @@
 package com.goodtime.bruaket.recipe;
 
 import com.goodtime.bruaket.core.Bruaket;
+import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.bruaket.IRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,23 +17,34 @@ import java.util.List;
 
 public class BruaketRecipe implements IRecipe {
 
-    private final List<IngredientStack> ingredients = new ArrayList<>();
-    private final ItemStack result;
+    //合成名称
     private final ResourceLocation name;
 
-    public BruaketRecipe(String name, @Nonnull ItemStack result, Object... recipe){
-        this(new ResourceLocation(Bruaket.MODID, name), result, recipe);
+    //合成所需原料
+    private final List<IngredientStack> ingredients = new ArrayList<>();
+
+    //合成所需符咒
+    private final Talisman talisman;
+
+    //合成产出
+    private final ItemStack result;
+
+
+    public BruaketRecipe(String name, @Nonnull ItemStack result, Talisman talisman, Object... recipe){
+        this(new ResourceLocation(Bruaket.MODID, name), result, talisman, recipe);
     }
 
-    public BruaketRecipe(ResourceLocation name, @Nonnull ItemStack result, List<IngredientStack> ingredients){
-        this.result = result;
+    public BruaketRecipe(ResourceLocation name, @Nonnull ItemStack result, Talisman talisman, List<IngredientStack> ingredients){
         this.name = name;
         this.ingredients.addAll(ingredients);
+        this.talisman = talisman;
+        this.result = result;
     }
 
-    public BruaketRecipe(ResourceLocation name, @Nonnull ItemStack result, Object... recipe){
-        this.result = result.copy();
+    public BruaketRecipe(ResourceLocation name, @Nonnull ItemStack result, Talisman talisman, Object... recipe){
         this.name = name;
+        this.talisman = talisman;
+        this.result = result.copy();
         int i = 0;
         for (Object stack : recipe) {
             if (stack instanceof ItemStack) {
@@ -57,6 +69,11 @@ public class BruaketRecipe implements IRecipe {
     @Override
     public ItemStack getRecipeOutput() {
         return result.copy();
+    }
+
+    @Override
+    public Talisman getTailsman() {
+        return talisman;
     }
 
     @Override

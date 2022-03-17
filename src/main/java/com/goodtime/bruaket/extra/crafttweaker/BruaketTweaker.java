@@ -1,6 +1,8 @@
 package com.goodtime.bruaket.extra.crafttweaker;
 
 import com.goodtime.bruaket.core.Bruaket;
+import com.goodtime.bruaket.init.ItemInitializer;
+import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.BruaketRecipe;
 import com.goodtime.bruaket.recipe.IngredientStack;
 import com.goodtime.bruaket.recipe.RecipeList;
@@ -18,12 +20,17 @@ import stanhebben.zenscript.annotations.ZenMethod;
 import java.util.ArrayList;
 import java.util.List;
 
-@ZenClass("mods."+ Bruaket.MODID+".Bruaket")
+@ZenClass("mods."+ Bruaket.MODID+".barrel")
 public class BruaketTweaker {
 
     @ZenMethod
     public static void addRecipe (String name, IItemStack output, IIngredient[] inputs) {
         CraftTweaker.LATE_ACTIONS.add(new Add(name, CraftTweakerMC.getItemStack(output), inputs, false));
+    }
+
+    @ZenClass
+    public static void addRecipe(String name, IItemStack output, IIngredient[] inputs, Talisman talisman){
+        CraftTweaker.LATE_ACTIONS.add(new Add(name, CraftTweakerMC.getItemStack(output), inputs, talisman, false));
     }
 
     @ZenMethod
@@ -40,13 +47,24 @@ public class BruaketTweaker {
         private final ResourceLocation name;
         private final ItemStack output;
         private final IIngredient[] ingredients;
+        private final Talisman talisman;
         private final boolean replace;
 
         private Add (String name, ItemStack output, IIngredient[] ingredients, boolean replace) {
-            super("GCT Recipe addition");
+            super("Bruaket Recipe addition");
             this.name = new ResourceLocation(Bruaket.MODID, name);
             this.output = output;
             this.ingredients = ingredients;
+            this.talisman = ItemInitializer.stone_talisman;
+            this.replace = replace;
+        }
+
+        private  Add(String name, ItemStack output, IIngredient[] ingredients, Talisman talisman, boolean replace){
+            super("Bruaket Recipe addition");
+            this.name = new ResourceLocation(Bruaket.MODID, name);
+            this.output = output;
+            this.ingredients = ingredients;
+            this.talisman = talisman;
             this.replace = replace;
         }
 
@@ -62,7 +80,7 @@ public class BruaketTweaker {
             for (IIngredient ingredient : ingredients) {
                 stacks.add(new IngredientStack(CraftTweakerMC.getIngredient(ingredient), ingredient.getAmount()));
             }
-            BruaketRecipe recipe = new BruaketRecipe(name, output, stacks);
+            BruaketRecipe recipe = new BruaketRecipe(name, output, talisman, stacks);
             RecipeList.instance.addRecipe(recipe);
         }
 
@@ -78,7 +96,7 @@ public class BruaketTweaker {
         private ItemStack output;
 
         private Remove (ItemStack stack) {
-            super("GCT Recipe removal");
+            super("Bruaket Recipe removal");
             this.output = stack;
         }
 

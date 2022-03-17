@@ -2,6 +2,7 @@ package com.goodtime.bruaket.recipe;
 
 
 import com.goodtime.bruaket.core.Bruaket;
+import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.bruaket.IRecipe;
 import com.goodtime.bruaket.recipe.bruaket.IRecipeList;
 import com.google.common.collect.ImmutableList;
@@ -11,9 +12,8 @@ import util.ItemUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RecipeList implements IRecipeList {
 
@@ -35,8 +35,14 @@ public class RecipeList implements IRecipeList {
                 return recipe;
             }
         }
-
         return null;
+    }
+
+    public LinkedList<IRecipe> getRecipeListByTailsMan(Talisman talisman){
+        return RECIPE_LIST.values()
+                .stream()
+                .filter(IRecipe -> ItemStack.areItemsEqual(new ItemStack(talisman), new ItemStack(IRecipe.getTailsman())))
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override
@@ -49,19 +55,19 @@ public class RecipeList implements IRecipeList {
     }
 
     @Override
-    public IRecipe makeAndAddRecipe (String name, @Nonnull ItemStack result, Object... recipe) {
-        BruaketRecipe newRecipe = new BruaketRecipe(name, result, recipe);
+    public IRecipe makeAndAddRecipe (String name, @Nonnull ItemStack result, Talisman talisman, Object... recipe) {
+        BruaketRecipe newRecipe = new BruaketRecipe(name, result, talisman, recipe);
         addRecipe(newRecipe);
         return newRecipe;
     }
 
     @Override
-    public IRecipe makeAndReplaceRecipe (String name, @Nonnull ItemStack result, Object... recipe) throws IndexOutOfBoundsException {
+    public IRecipe makeAndReplaceRecipe (String name, @Nonnull ItemStack result, Talisman talisman, Object... recipe) throws IndexOutOfBoundsException {
         ResourceLocation nameResolved = new ResourceLocation(Bruaket.MODID, name);
         if (!RECIPE_LIST.containsKey(nameResolved)) {
             throw new IndexOutOfBoundsException("Key '" + name + "' is not contained in the recipe list; use `makeAndAddRecipe` instead or check your spelling.");
         }
-        BruaketRecipe newRecipe = new BruaketRecipe(name, result, recipe);
+        BruaketRecipe newRecipe = new BruaketRecipe(name, result, talisman, recipe);
         addRecipe(newRecipe);
         return newRecipe;
     }
