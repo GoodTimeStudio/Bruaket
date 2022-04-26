@@ -7,10 +7,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreIngredient;
+import util.ItemUtils;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /*
     提供一系列合成原料的相关方法
@@ -19,6 +21,7 @@ import java.util.List;
 public class IngredientStack {
 
     private final Ingredient ingredient;
+
     private int count;
 
     @Nullable

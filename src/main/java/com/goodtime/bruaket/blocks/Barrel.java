@@ -2,6 +2,8 @@ package com.goodtime.bruaket.blocks;
 
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.entity.TileEntityBarrel;
+import com.goodtime.bruaket.init.ItemInitializer;
+import com.goodtime.bruaket.recipe.RecipeList;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -32,7 +34,6 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 
 public class Barrel extends BlockContainer {
@@ -99,6 +100,7 @@ public class Barrel extends BlockContainer {
     //所使用的TileEntity
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
+        System.out.println(this.name);
         return new TileEntityBarrel();
     }
 
@@ -116,6 +118,7 @@ public class Barrel extends BlockContainer {
                 }
             }
         }
+
     }
 
     @Override
@@ -128,7 +131,7 @@ public class Barrel extends BlockContainer {
                 if (playerIn.isSneaking()){
                     TileEntityBarrel.dropAllItems((TileEntityBarrel)tileentity);
                 }else {
-                    TileEntityBarrel.dropItem((TileEntityBarrel)tileentity);
+                    TileEntityBarrel.dropLastItem((TileEntityBarrel)tileentity);
                 }
             }
             return true;
@@ -137,9 +140,15 @@ public class Barrel extends BlockContainer {
 
     @Override
     public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn){
-        TileEntity tileentity = worldIn.getTileEntity(pos);
-        if(tileentity instanceof  TileEntityBarrel){
-            TileEntityBarrel.dropTailsman((TileEntityBarrel) tileentity);
+        if (!worldIn.isRemote) {
+            TileEntity tileentity = worldIn.getTileEntity(pos);
+            if(tileentity instanceof TileEntityBarrel){
+                if(playerIn.isSneaking()){
+                    ((TileEntityBarrel) tileentity).getCurrentRecipe().forEach(recipe -> System.out.println(recipe.getName()));
+                }else {
+                    TileEntityBarrel.dropTalisman((TileEntityBarrel) tileentity);
+                }
+            }
         }
     }
 
@@ -149,6 +158,7 @@ public class Barrel extends BlockContainer {
 
         if (tileentity instanceof TileEntityBarrel) {
             InventoryHelper.dropInventoryItems(worldIn, pos, (TileEntityBarrel)tileentity);
+            ((TileEntityBarrel) tileentity).clearRecipe();
             worldIn.updateComparatorOutputLevel(pos, this);
         }
 

@@ -1,5 +1,6 @@
 package com.goodtime.bruaket.recipe.bruaket;
 
+import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.items.Talisman;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -49,7 +50,7 @@ public interface IRecipeList {
      *               Any other type will print a warning message to chat.
      * @return An instance of IGCTRecipe, a GCTRecipe by default.
      */
-    IRecipe makeAndAddRecipe (String name, @Nonnull ItemStack result, Talisman talisman, Object... recipe);
+    IRecipe makeAndAddRecipe (String name, String barrel, @Nonnull ItemStack result, String talisman, int time, Object... recipe);
 
     /**
      * As above, but instead of adding a new recipe will attempt to replace the recipe
@@ -64,7 +65,7 @@ public interface IRecipeList {
      * @param recipe As per makeAndAddRecipe.
      * @return As per makeAndAddRecipe.
      */
-    IRecipe makeAndReplaceRecipe (String name, @Nonnull ItemStack result, Talisman talisman, Object... recipe) throws IndexOutOfBoundsException;
+    IRecipe makeAndReplaceRecipe (String name, String barrel, @Nonnull ItemStack result, String talisman, int time, Object... recipe) throws IndexOutOfBoundsException;
 
 
     void addRecipe (IRecipe recipe);

@@ -30,6 +30,7 @@ public enum Bruaket {
 
     @Mod.EventHandler
     public void preLoad(FMLPreInitializationEvent event) {
+        logger = event.getModLog();
     }
 
 }

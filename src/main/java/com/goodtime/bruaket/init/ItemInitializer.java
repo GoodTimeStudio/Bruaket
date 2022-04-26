@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Mod.EventBusSubscriber
 public class ItemInitializer {
     //Block
-    public static Block wooden_barrel;
+    public static Barrel wooden_barrel;
 
     //Item
     public static Item logo;

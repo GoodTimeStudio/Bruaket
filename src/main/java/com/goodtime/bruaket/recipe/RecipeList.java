@@ -2,7 +2,6 @@ package com.goodtime.bruaket.recipe;
 
 
 import com.goodtime.bruaket.core.Bruaket;
-import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.bruaket.IRecipe;
 import com.goodtime.bruaket.recipe.bruaket.IRecipeList;
 import com.google.common.collect.ImmutableList;
@@ -13,14 +12,17 @@ import util.ItemUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RecipeList implements IRecipeList {
 
     public static final RecipeList instance = new RecipeList();
 
     private final LinkedHashMap<ResourceLocation, IRecipe> RECIPE_LIST = new LinkedHashMap<>();
+
+    private final LinkedHashMap<String, LinkedList<IRecipe>> DIVIDED_LIST = new LinkedHashMap<>();
+
     private ImmutableList<IRecipe> IMMUTABLE_COPY = null;
+
 
     @Override
     public Map<ResourceLocation, IRecipe> getRecipes () {
@@ -35,14 +37,31 @@ public class RecipeList implements IRecipeList {
                 return recipe;
             }
         }
+
         return null;
     }
 
-    public LinkedList<IRecipe> getRecipeListByTailsMan(Talisman talisman){
-        return RECIPE_LIST.values()
-                .stream()
-                .filter(IRecipe -> ItemStack.areItemsEqual(new ItemStack(talisman), new ItemStack(IRecipe.getTailsman())))
-                .collect(Collectors.toCollection(LinkedList::new));
+    public LinkedList<IRecipe> getRecipeListByBarrelAndTalisMan(String barrel, String talisman){
+
+        String splitter = talisman + "&" + barrel;
+
+        LinkedList<IRecipe> recipes = DIVIDED_LIST.get(splitter);
+
+        return recipes.isEmpty() ? null : recipes;
+    }
+
+    public LinkedList<IRecipe> getRecipeListByItem(ItemStack itemStack, LinkedList<IRecipe> currentRecipe){
+        LinkedList<IRecipe> recipes = new LinkedList<>();
+        if(currentRecipe != null){
+            currentRecipe.forEach(recipe -> {
+                if(recipe.contains(itemStack)){
+                    recipes.add(recipe);
+                }
+            });
+
+        }
+        return recipes.isEmpty() ? null : recipes;
+
     }
 
     @Override
@@ -55,19 +74,19 @@ public class RecipeList implements IRecipeList {
     }
 
     @Override
-    public IRecipe makeAndAddRecipe (String name, @Nonnull ItemStack result, Talisman talisman, Object... recipe) {
-        BruaketRecipe newRecipe = new BruaketRecipe(name, result, talisman, recipe);
+    public IRecipe makeAndAddRecipe (String name, String barrel, @Nonnull ItemStack result, String talisman, int time, Object... recipe) {
+        BruaketRecipe newRecipe = new BruaketRecipe(name,barrel, result, talisman, time, recipe);
         addRecipe(newRecipe);
         return newRecipe;
     }
 
     @Override
-    public IRecipe makeAndReplaceRecipe (String name, @Nonnull ItemStack result, Talisman talisman, Object... recipe) throws IndexOutOfBoundsException {
+    public IRecipe makeAndReplaceRecipe (String name, String barrel, @Nonnull ItemStack result, String talisman, int time, Object... recipe) throws IndexOutOfBoundsException {
         ResourceLocation nameResolved = new ResourceLocation(Bruaket.MODID, name);
         if (!RECIPE_LIST.containsKey(nameResolved)) {
             throw new IndexOutOfBoundsException("Key '" + name + "' is not contained in the recipe list; use `makeAndAddRecipe` instead or check your spelling.");
         }
-        BruaketRecipe newRecipe = new BruaketRecipe(name, result, talisman, recipe);
+        BruaketRecipe newRecipe = new BruaketRecipe(name, barrel, result, talisman, time, recipe);
         addRecipe(newRecipe);
         return newRecipe;
     }
@@ -76,6 +95,13 @@ public class RecipeList implements IRecipeList {
     public void addRecipe (IRecipe recipe) {
         IMMUTABLE_COPY = null;
         RECIPE_LIST.put(recipe.getName(), recipe);
+
+        String splitter = recipe.getTailsman() + "&" + recipe.getBarrel();
+
+        if(!DIVIDED_LIST.containsKey(splitter)){
+            DIVIDED_LIST.put(splitter, new LinkedList<>());
+        }
+        DIVIDED_LIST.get(splitter).add(recipe);
     }
 
     @Override

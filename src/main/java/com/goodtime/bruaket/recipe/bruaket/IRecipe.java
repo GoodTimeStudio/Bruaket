@@ -1,27 +1,35 @@
 package com.goodtime.bruaket.recipe.bruaket;
 
+import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.IngredientStack;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public interface IRecipe{
 
     ItemStack getRecipeOutput ();
 
-    Talisman getTailsman();
+    String getTailsman();
 
     List<IngredientStack> getIngredients ();
 
     /**
      * @return Returns the index within the main Bruaket Recipe List that this recipe is
      */
-    int getIndex ();
+    int getIndex();
 
+    long getTime();
+
+    String getBarrel();
+
+    int getIngredientsSize();
 
     /**
      * @return Returns the ResourceLocation associated with the recipe.
@@ -37,8 +45,6 @@ public interface IRecipe{
      * @return The item to be given to the player instead.
      */
     ItemStack onCrafted (EntityPlayer player, ItemStack output);
-
-
     /**
      * Returns whether or not the player currently accessing the given tile entity
      * (Gem Cutter's Table specifically) is able to craft this recipe. Should generally
@@ -49,8 +55,6 @@ public interface IRecipe{
      * @return boolean true if the recipe is craftable
      */
     boolean craftable (EntityPlayer player, TileEntity craftingTable);
-
-
     /**
      * Provides an access point for additional GCTCondition predicates
      * to be stored in conditional GCT recipes. By default, this does
@@ -62,6 +66,8 @@ public interface IRecipe{
     default IRecipe addCondition (Condition predicate) {
         return this;
     }
+
+    boolean contains(ItemStack itemStack);
 
     /**
      * This is used as a placeholder for a boolean-returning function that is called
@@ -80,6 +86,7 @@ public interface IRecipe{
          */
         boolean test (EntityPlayer player, TileEntity tile);
     }
+
 
 
 }

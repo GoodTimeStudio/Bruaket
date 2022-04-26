@@ -65,25 +65,31 @@ tx -->|液体或其他类似|kb
 
 ```
 推荐的代码框架展示:
-桶.addRecipe(输出物品,输出数量,电路板,能量种类,能量消耗量,合成表JSON);
-桶.addRecipe(输出物品,输出数量,电路板,能量种类,能量消耗量,
+桶.addRecipe(输出物品,输出数量,桶类型，电路板,能量种类,能量消耗量,合成表JSON);
+桶.addRecipe(输出物品,输出数量,桶类型，电路板,能量种类,能量消耗量,
     {
     "物品名1-9": 数量
     }
 );
 
-或者看看能不能学一学GTCE的
+数量之前没做出来
 ```
-[GTCE](https://docs.blamejared.com/1.12/zh/Mods/GregTechCE/Machines)
+桶的种类数据：  
+* Wooden
+* Iron
+* Livingwood
+* Tinker
+* Ender
 # 物品与方块 Item And Block
 ### 方块
 1. 木桶 Wooden Barrel
 2. 铁桶 Iron Barrel
 3. 活木桶 Livingwood Barrel
 4. 地狱桶 Nether Barrel
-5. 工匠桶 Tinkers Barrel
+5. 工匠桶 Tinker Barrel
 6. 能源桶 Energistics Barrel
 7. 末影桶 Ender Barrel
+8. 桶样板终端 Barrel Pattern Terminal
 
 ### 物品
 1. 石符咒 Stone Talisman
@@ -94,26 +100,41 @@ tx -->|液体或其他类似|kb
 6. 炎符咒 Ultra Flamma Talisman
 7. 焱符咒 Maxima Flamma Talisman
 8. 手提桶 Bucket
+9. 桶之种 Barrel Seed
+10. 桶样板 Barrel Pattern
 
 # 物品功能
 **木桶&铁桶&工匠**  
 不消耗能量的合成桶  
+木桶硬度：3  
+铁桶&工匠桶硬度：6  
 **活木桶**  
 消耗mana的合成桶  
+硬度：3  
 **地狱桶**  
 消耗能量代替熔炉的桶，放入不同符咒效果不同，可以消耗MANA  
+硬度：10  
 1. 火符咒：单次烧制1个物品，运行一次消耗2000RF，功耗20/t
 2. 炎符咒：单次烧制9个物品，运行一次消耗20000RF，功耗200/t
 3. 焱符咒：单次烧制36个物品，运行一次消耗100000RF，功耗1000/t
 
 **能源桶**  
-能接入AE网络，可执行所有配方，如需要消耗能量则消耗1.5倍于原配方等比转换后的AE能量
+能接入AE网络，可执行所有配方，如需要消耗能量则消耗1.5倍于原配方等比转换后的AE能量  
+除此之外功能与分子装配室相当，可以使用AE的加速卡
+硬度：2  
 *可以先不做这个*  
 **末影桶**  
 消耗RF的合成桶  
+硬度：6  
+**桶样板终端**
+提供编辑桶样板的功能。
 **手提桶**  
 装备在戒指位置的合成桶，能执行所有木桶和铁桶配方  
 *可以先不做这个*  
+**桶之种**
+种植过程和小麦相当，最后整个植株会变成桶。
+**桶样板**
+用于在AE中记录合成方式。
 # 材质设计
 1. 模型使用略瘦（xz轴窄）于原版标准方块的方块
 2. 基础木桶可以表现的和竖置的酒桶一样的外观
