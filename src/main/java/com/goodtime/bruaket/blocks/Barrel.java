@@ -4,6 +4,7 @@ import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.entity.TileEntityBarrel;
 import com.goodtime.bruaket.init.ItemInitializer;
 import com.goodtime.bruaket.recipe.RecipeList;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -35,6 +36,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Objects;
+import java.util.Random;
 
 public class Barrel extends BlockContainer {
 
@@ -45,6 +47,8 @@ public class Barrel extends BlockContainer {
 
     // ENABLED  方块的自定义属性，描述该方块的开关情况
     public static final PropertyBool ENABLED = PropertyBool.create("enabled");
+
+    private boolean canWork = true;
 
     public Barrel(String registerName) {
         super(Material.ROCK);
@@ -165,6 +169,31 @@ public class Barrel extends BlockContainer {
         super.breakBlock(worldIn, pos, state);
     }
 
+    @Override
+    public int tickRate(World worldIn)
+    {
+        return 4;
+    }
+
+    //检测红石信号
+    @Override
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+        //附近方块是否带有红石信号
+        boolean flag = worldIn.isBlockPowered(pos) || worldIn.isBlockPowered(pos.up());
+
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        if (tileEntity instanceof TileEntityBarrel){
+
+            TileEntityBarrel tileEntityBarrel = (TileEntityBarrel) tileEntity;
+
+            if (flag && canWork) {
+                canWork = false;
+            } else if (!flag && !canWork) {
+                canWork = true;
+            }
+        }
+    }
+
     //以模型的方式渲染该方块
     @Override
     public EnumBlockRenderType getRenderType(IBlockState state)
@@ -172,13 +201,23 @@ public class Barrel extends BlockContainer {
         return EnumBlockRenderType.MODEL;
     }
 
-    public boolean hasComparatorInputOverride(IBlockState state)
-    {
-        return true;
+    private boolean canOutPower = false;
+
+    public void setCanOutPower(boolean canOutPower){
+        this.canOutPower = canOutPower;
     }
 
+    @Override
+    public boolean hasComparatorInputOverride(IBlockState state)
+    {
+        return canOutPower;
+    }
+
+    @Override
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos) {
-        return Container.calcRedstone(worldIn.getTileEntity(pos));
+        int power = Container.calcRedstone(worldIn.getTileEntity(pos));
+
+        return power;
     }
 
     @SideOnly(Side.CLIENT)
@@ -192,12 +231,15 @@ public class Barrel extends BlockContainer {
         int i = 0;
         i = i | state.getValue(FACING).getIndex();
 
-        if (!state.getValue(ENABLED))
-        {
+        if (!state.getValue(ENABLED)) {
             i |= 8;
         }
 
         return i;
+    }
+
+    public boolean isCanWork(){
+        return canWork;
     }
 
     public static boolean isEnabled(int meta)

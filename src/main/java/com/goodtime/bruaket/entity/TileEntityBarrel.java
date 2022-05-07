@@ -37,7 +37,7 @@ import java.util.UUID;
 
 public class TileEntityBarrel extends TileEntityHopper {
 
-   private UUID owner = null;
+    private UUID owner = null;
 
     private NonNullList<ItemStack> inventory = NonNullList.withSize(10, ItemStack.EMPTY);
 
@@ -220,9 +220,13 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
     public void update() {
-        if (this.world != null && !this.world.isRemote) {
+        Barrel barrel = this.getBarrelBlock(this);
+
+        if (this.world != null && !this.world.isRemote && barrel.isCanWork()) {
             --this.transferCooldown;
             this.tickedGameTime = this.world.getTotalWorldTime();
+
+            barrel.setCanOutPower(true);
 
             if (!this.isOnTransferCooldown()) {
 
@@ -230,7 +234,7 @@ public class TileEntityBarrel extends TileEntityHopper {
                     this.drop(result, 1, true);
                     result = null;
                 }
-
+                barrel.setCanOutPower(false);
                 this.setTransferCooldown(0);
                 this.updateBarrel();
             }
@@ -521,7 +525,6 @@ public class TileEntityBarrel extends TileEntityHopper {
         return haveTailMan() ? (Talisman) this.inventory.get(tailsmanSlot()).getItem() : null;
     }
 
-
     //如果桶下方的方块是空气
     protected boolean bottomIsAir(IHopper barrel) {
         World worldIn = barrel.getWorld();
@@ -721,6 +724,17 @@ public class TileEntityBarrel extends TileEntityHopper {
 
     public String getBarrel() {
         return barrel;
+    }
+
+    public Barrel getBarrelBlock(IHopper barrel) {
+        World worldIn = barrel.getWorld();
+        int x = MathHelper.floor(barrel.getXPos());
+        int y = MathHelper.floor(barrel.getYPos());
+        int z = MathHelper.floor(barrel.getZPos());
+
+        Block block = worldIn.getBlockState(new BlockPos(x, y, z)).getBlock();
+
+        return (Barrel)block;
     }
 
     public void setOwner(UUID owner) {
