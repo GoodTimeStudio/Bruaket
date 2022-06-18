@@ -57,6 +57,7 @@ public class TileEntityBarrel extends TileEntityHopper {
     private int transferCooldown = -1;
 
     //读取NBT，确保物品在重启游戏后不会丢失且数量不变
+    @Override
     @ParametersAreNonnullByDefault
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
@@ -83,6 +84,7 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
     //存储NBT
+    @Override
     @Nonnull
     @ParametersAreNonnullByDefault
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
@@ -112,6 +114,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         super.onDataPacket(net, pkt);
     }
 
+    @Override
     @Nonnull
     public String getName() {
         return "wooden_barrel";
@@ -219,10 +222,11 @@ public class TileEntityBarrel extends TileEntityHopper {
         return recipes;
     }
 
+    @Override
     public void update() {
-        Barrel barrel = this.getBarrelBlock(this);
+        Barrel barrel = (Barrel)(this.getWorld().getBlockState(new BlockPos(this.getXPos(), this.getYPos(), this.getZPos())).getBlock());
 
-        if (this.world != null && !this.world.isRemote && barrel.isCanWork()) {
+        if (this.world != null && !this.world.isRemote && barrel.isWorking()) {
             --this.transferCooldown;
             this.tickedGameTime = this.world.getTotalWorldTime();
 
@@ -633,10 +637,12 @@ public class TileEntityBarrel extends TileEntityHopper {
         return this.transferCooldown > 0;
     }
 
+    @Override
     public boolean mayTransfer() {
         return this.transferCooldown > 8;
     }
 
+    @Override
     public void setTransferCooldown(int ticks) {
         this.transferCooldown = ticks;
     }
@@ -673,6 +679,7 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
 
+    @Override
     public boolean isEmpty() {
         for (int i = 0; i < this.inventory.size(); i++) {
             ItemStack itemStack = inventory.get(i);
@@ -706,10 +713,12 @@ public class TileEntityBarrel extends TileEntityHopper {
         return true;
     }
 
+    @Override
     public int getInventoryStackLimit() {
         return 64;
     }
 
+    @Override
     public NonNullList<ItemStack> getItems() {
         return this.inventory;
     }
@@ -718,6 +727,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         return this.getItems().indexOf(itemStack);
     }
 
+    @Override
     public int getSizeInventory() {
         return this.inventory.size();
     }
@@ -726,21 +736,11 @@ public class TileEntityBarrel extends TileEntityHopper {
         return barrel;
     }
 
-    public Barrel getBarrelBlock(IHopper barrel) {
-        World worldIn = barrel.getWorld();
-        int x = MathHelper.floor(barrel.getXPos());
-        int y = MathHelper.floor(barrel.getYPos());
-        int z = MathHelper.floor(barrel.getZPos());
-
-        Block block = worldIn.getBlockState(new BlockPos(x, y, z)).getBlock();
-
-        return (Barrel)block;
-    }
-
     public void setOwner(UUID owner) {
         this.owner = owner;
     }
 
+    @Override
     public long getLastUpdateTime() {
         return tickedGameTime;
     } // Forge

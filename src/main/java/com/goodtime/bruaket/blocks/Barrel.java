@@ -80,22 +80,26 @@ public class Barrel extends BlockContainer {
         );
     }
 
+    @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return FULL_BLOCK_AABB;
     }
 
+    @Override
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    @Override
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
 
+    @Override
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, EnumFacing.DOWN).withProperty(ENABLED, Boolean.TRUE);
@@ -184,8 +188,6 @@ public class Barrel extends BlockContainer {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
         if (tileEntity instanceof TileEntityBarrel){
 
-            TileEntityBarrel tileEntityBarrel = (TileEntityBarrel) tileEntity;
-
             if (flag && canWork) {
                 canWork = false;
             } else if (!flag && !canWork) {
@@ -220,12 +222,14 @@ public class Barrel extends BlockContainer {
         return power;
     }
 
+    @Override
     @SideOnly(Side.CLIENT)
     public BlockRenderLayer getBlockLayer()
     {
         return BlockRenderLayer.CUTOUT_MIPPED;
     }
 
+    @Override
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
@@ -238,7 +242,7 @@ public class Barrel extends BlockContainer {
         return i;
     }
 
-    public boolean isCanWork(){
+    public boolean isWorking(){
         return canWork;
     }
 
