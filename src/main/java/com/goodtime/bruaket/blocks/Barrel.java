@@ -2,8 +2,6 @@ package com.goodtime.bruaket.blocks;
 
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.entity.TileEntityBarrel;
-import com.goodtime.bruaket.init.ItemInitializer;
-import com.goodtime.bruaket.recipe.RecipeList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -36,7 +34,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Objects;
-import java.util.Random;
+
+/**
+ * @author Java0
+ */
 
 public class Barrel extends BlockContainer {
 

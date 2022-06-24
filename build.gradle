@@ -40,6 +40,17 @@ repositories {
     maven{
         url "https://maven.blamejared.com"
     }
+    maven {
+        // location of the maven that hosts JEI files
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+
 }
 
 dependencies {
@@ -47,6 +58,10 @@ dependencies {
 	deobfCompile "CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-${ct_version}"
     deobfCompile "CraftTweaker2:CraftTweaker2-API:1.12-${ct_version}"
     deobfCompile "CraftTweaker2:ZenScript:1.12-${ct_version}"
+
+    deobfCompile "mezz.jei:jei_${minecraft_version}:${jei_version}"
+    // at runtime, use the full JEI jar
+   // runtime "mezz.jei:jei_${minecraft_version}:${jei_version}"
 
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
