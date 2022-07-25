@@ -3,7 +3,6 @@ package com.goodtime.bruaket.entity;
 
 import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.items.Talisman;
-import com.goodtime.bruaket.recipe.IngredientStack;
 import com.goodtime.bruaket.recipe.RecipeList;
 import com.goodtime.bruaket.recipe.bruaket.IRecipe;
 import net.minecraft.block.Block;
@@ -43,7 +42,7 @@ public class TileEntityBarrel extends TileEntityHopper {
 
     private long tickedGameTime;
 
-    private LinkedList<IRecipe> recipeListFromSplitter;
+    private LinkedList<IRecipe> filteredRecipeList;
 
     private final String barrel = getName();
 
@@ -76,7 +75,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         this.history = new StringBuffer(compound.getString("Recipe"));
 
         if(haveTailMan()){
-            this.setSplitterRecipeList(this.getTailsMan());
+            this.setFilteredRecipeList(this.getTalisMan());
         }
 
         this.currentRecipes = this.getLastHistory();
@@ -120,13 +119,15 @@ public class TileEntityBarrel extends TileEntityHopper {
         return "wooden_barrel";
     }
 
-    public LinkedList<IRecipe> getRecipeListFromSplitter() {
-        return recipeListFromSplitter;
+    //筛选使用这个桶和桶内符文的合成表
+    public void setFilteredRecipeList(Talisman talisman) {
+        String talismanName = Objects.requireNonNull(talisman.getRegistryName()).toString().split(":")[1];
+        this.filteredRecipeList = RecipeList.instance.getRecipeListByBarrelAndTalisMan(this.getBarrel(), talismanName);
+        this.markDirty();
     }
 
-    public void setSplitterRecipeList(Talisman talisman) {
-        this.recipeListFromSplitter = RecipeList.instance.getRecipeListByBarrelAndTalisMan(this.getBarrel(), Objects.requireNonNull(talisman.getRegistryName()).toString().split(":")[1]);
-        this.markDirty();
+    public LinkedList<IRecipe> getFilteredRecipeList() {
+        return filteredRecipeList;
     }
 
     public void setCurrentRecipe(LinkedList<IRecipe> currentRecipes) {
@@ -138,8 +139,8 @@ public class TileEntityBarrel extends TileEntityHopper {
         return currentRecipes;
     }
 
+    //为合成添加历史记录，添加的是合成表索引。每次添加的记录之间用#分隔，若每次添加的记录包含多个合成表，每个合成表之间用&分隔。没有匹配到合成表则添加n。
     public void addHistory(LinkedList<IRecipe> recipes) {
-
         if(recipes == null){
             history.append("n").append("&").append("#");
         }else {
@@ -184,7 +185,7 @@ public class TileEntityBarrel extends TileEntityHopper {
 
             return historyTOList(indexes);
         } else if (this.haveTailMan()) {
-            return this.getRecipeListFromSplitter();
+            return this.getFilteredRecipeList();
         }
         return null;
     }
@@ -195,8 +196,8 @@ public class TileEntityBarrel extends TileEntityHopper {
 
             if (history.toString().split("#").length == 1) {
                 clearHistory();
-                addHistory(recipeListFromSplitter);
-                return recipeListFromSplitter;
+                addHistory(filteredRecipeList);
+                return filteredRecipeList;
             }
 
             removeLastHistory();
@@ -207,7 +208,7 @@ public class TileEntityBarrel extends TileEntityHopper {
 
             return historyTOList(indexes);
         }
-        return recipeListFromSplitter;
+        return filteredRecipeList;
     }
 
     private static LinkedList<IRecipe> historyTOList(String[] history) {
@@ -220,6 +221,12 @@ public class TileEntityBarrel extends TileEntityHopper {
             recipes.add(RecipeList.instance.getRecipeByIndex(index));
         }
         return recipes;
+    }
+
+    public void initializationRecipe(){
+        this.setCurrentRecipe(this.filteredRecipeList);
+        this.clearHistory();
+        this.addHistory(currentRecipes);
     }
 
     @Override
@@ -245,7 +252,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
     }
 
-    //漏斗执行的需要时间的操作
+    //一定tick之后执行的操作
     protected boolean updateBarrel() {
         if (this.world != null && !this.world.isRemote) {
             if (!this.isOnTransferCooldown() && Barrel.isEnabled(this.getBlockMetadata())) {
@@ -275,21 +282,53 @@ public class TileEntityBarrel extends TileEntityHopper {
         return false;
     }
 
+    //是否可以输出合成结果。已知可能bug:当桶内有相同物品但却占两格空间，将无法正常输出结果。
     public boolean canOut(){
         if(currentRecipes != null && currentRecipes.size() == 1){
             IRecipe recipe = currentRecipes.get(0);
 
             LinkedList<ItemStack> matchedItemStacks = new LinkedList<>();
 
-            for (int i = 1; i< inventory.size(); i++) {
+            int nonNullSize = recipe.getIngredientsSize();
 
-                ItemStack itemStack = inventory.get(i);
+            if(nonNullSize >= recipe.getIngredientsSize()){
+                for (int i = 0; i < recipe.getIngredientsSize(); i++) {
+                    start:for (ItemStack stacksWithSize : recipe.getIngredients().get(i).getMatchingStacksWithSizes()) {
+                        for (int j = 0; j < nonNullSize; j++) {
+                            ItemStack itemStackInBarrel = inventory.get(j);
+                            if(ItemStack.areItemStacksEqual(itemStackInBarrel, stacksWithSize)){
+                                ItemStack matchedItemStack = itemStackInBarrel.copy();
+                                matchedItemStack.setCount(stacksWithSize.getCount());
+                                matchedItemStacks.add(matchedItemStack);
+                                break start;
+                            }
+                        }
+                    }
+
+                    if(i == recipe.getIngredientsSize()-1){
+                        if(matchedItemStacks.size() == recipe.getIngredientsSize()){
+                            for (ItemStack itemStack : matchedItemStacks) {
+                                decrStackSize(itemStack, itemStack.getCount());
+                            }
+                            return true;
+                        }
+                        return false;
+                    }
+
+                }
+
+
+            }
+
+     /*       for (int i = 1; i< inventory.size(); i++) {
+
+                ItemStack itemStackInBarrel = inventory.get(i);
 
                 for (IngredientStack ingredient : recipe.getIngredients()) {
                     for (ItemStack stacksWithSize : ingredient.getMatchingStacksWithSizes()) {
-                        if(ItemStack.areItemStacksEqual(itemStack, stacksWithSize)){
-                            matchedItemStacks.add(itemStack.copy());
-                            decrStackSize(itemStack, stacksWithSize.getCount());
+                        if(ItemStack.areItemStacksEqual(itemStackInBarrel, stacksWithSize)){
+                            matchedItemStacks.add(itemStackInBarrel.copy());
+                            decrStackSize(itemStackInBarrel, stacksWithSize.getCount());
                             break;
                         }
                     }
@@ -309,7 +348,7 @@ public class TileEntityBarrel extends TileEntityHopper {
                     }
                 }
                 return false;
-            }
+            }*/
         }
         return false;
     }
@@ -327,7 +366,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         return false;
     }
 
-    //将掉落物塞进桶里，如果是符咒就塞最后一个格子里
+    //将掉落物塞进桶里，如果是符咒就塞到第一个格子里
     public static boolean putDropInInventoryAllSlots(IInventory source, TileEntityBarrel destination, EntityItem entity) {
         boolean flag = false;
 
@@ -366,7 +405,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
     }
 
-    //匹配合成表，如果放入这个物品后就匹配不到合成表了，那就把这个物品丢出去
+    //匹配合成表，将匹配到的合成表加入历史记录
     private static void matching(TileEntityBarrel destination, ItemStack itemStack) {
         LinkedList<IRecipe> recipes = RecipeList.instance.getRecipeListByItem(itemStack, destination.getCurrentRecipe());
         if(recipes != null){
@@ -375,16 +414,16 @@ public class TileEntityBarrel extends TileEntityHopper {
         destination.addHistory(destination.getCurrentRecipe());
     }
 
-
+    //放符文
     private static ItemStack putTalisman(TileEntityBarrel destination, ItemStack talisman) {
         if (destination.getStackInSlot(0).isEmpty()) {
             destination.setInventorySlotContents(0, talisman);
 
-            destination.setSplitterRecipeList(destination.getTailsMan());
+            destination.setFilteredRecipeList(destination.getTalisMan());
 
-            if (destination.getRecipeListFromSplitter() != null) {
-                System.out.println("已匹配到：" + destination.getRecipeListFromSplitter().size() + "个初始合成：");
-                destination.getRecipeListFromSplitter().forEach(recipe -> System.out.print(recipe.getName().toString()));
+            if (destination.getFilteredRecipeList() != null) {
+                System.out.println("已匹配到：" + destination.getFilteredRecipeList().size() + "个初始合成：");
+                destination.getFilteredRecipeList().forEach(recipe -> System.out.print(recipe.getName().toString()));
             } else {
                 System.out.println("未匹配到合成");
             }
@@ -402,6 +441,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
     }
 
+    //放合成材料
     public static ItemStack putCraftInInventorySlots(IInventory source, TileEntityBarrel destination, ItemStack stack, @Nullable EnumFacing direction) {
 
         int i = destination.getSizeInventory();
@@ -480,7 +520,7 @@ public class TileEntityBarrel extends TileEntityHopper {
         return stack;
     }
 
-
+    //减少格子内指定数量的指定物品
     public ItemStack decrStackSize(ItemStack itemStack, int count) {
         this.fillWithLoot((EntityPlayer) null);
         return ItemStackHelper.getAndSplit(this.getItems(), indexOf(itemStack), count);
@@ -521,12 +561,12 @@ public class TileEntityBarrel extends TileEntityHopper {
 
     }
 
-    public int tailsmanSlot() {
+    public int talismanSlot() {
         return 0;
     }
 
-    public Talisman getTailsMan() {
-        return haveTailMan() ? (Talisman) this.inventory.get(tailsmanSlot()).getItem() : null;
+    public Talisman getTalisMan() {
+        return haveTailMan() ? (Talisman) this.inventory.get(talismanSlot()).getItem() : null;
     }
 
     //如果桶下方的方块是空气
@@ -620,11 +660,6 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
     }
 
-    public void initializationRecipe(){
-        this.setCurrentRecipe(this.recipeListFromSplitter);
-        this.clearHistory();
-        this.addHistory(currentRecipes);
-    }
 
     //获取桶底部的方块的库存（inventory），如果没有库存就返回null
     @Nullable
@@ -675,7 +710,7 @@ public class TileEntityBarrel extends TileEntityHopper {
     }
 
     public boolean haveTailMan() {
-        return !inventory.get(tailsmanSlot()).isEmpty();
+        return !inventory.get(talismanSlot()).isEmpty();
     }
 
 
@@ -711,6 +746,17 @@ public class TileEntityBarrel extends TileEntityHopper {
             }
         }
         return true;
+    }
+
+    public int getInventoryNonNullSize(){
+        int num = 0;
+        for (int i = 0; i < inventory.size(); i++) {
+            if(ItemStack.areItemStacksEqual(inventory.get(i), ItemStack.EMPTY)){
+                break;
+            }
+            num++;
+        }
+        return num;
     }
 
     @Override
