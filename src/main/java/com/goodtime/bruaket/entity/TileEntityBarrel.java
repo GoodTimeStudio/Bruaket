@@ -3,6 +3,7 @@ package com.goodtime.bruaket.entity;
 
 import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.items.Talisman;
+import com.goodtime.bruaket.recipe.IngredientStack;
 import com.goodtime.bruaket.recipe.RecipeList;
 import com.goodtime.bruaket.recipe.bruaket.IRecipe;
 import net.minecraft.block.Block;
@@ -282,45 +283,14 @@ public class TileEntityBarrel extends TileEntityHopper {
         return false;
     }
 
-    //是否可以输出合成结果。已知可能bug:当桶内有相同物品但却占两格空间，将无法正常输出结果。
+    //是否可以输出合成结果。已知可能bug:当桶内有相同物品但却占两格空间，将无法正常输出结果。当丢入材料大于所需材料数量时无法正常输出
     public boolean canOut(){
         if(currentRecipes != null && currentRecipes.size() == 1){
             IRecipe recipe = currentRecipes.get(0);
 
             LinkedList<ItemStack> matchedItemStacks = new LinkedList<>();
-
-            int nonNullSize = recipe.getIngredientsSize();
-
-            if(nonNullSize >= recipe.getIngredientsSize()){
-                for (int i = 0; i < recipe.getIngredientsSize(); i++) {
-                    start:for (ItemStack stacksWithSize : recipe.getIngredients().get(i).getMatchingStacksWithSizes()) {
-                        for (int j = 0; j < nonNullSize; j++) {
-                            ItemStack itemStackInBarrel = inventory.get(j);
-                            if(ItemStack.areItemStacksEqual(itemStackInBarrel, stacksWithSize)){
-                                ItemStack matchedItemStack = itemStackInBarrel.copy();
-                                matchedItemStack.setCount(stacksWithSize.getCount());
-                                matchedItemStacks.add(matchedItemStack);
-                                break start;
-                            }
-                        }
-                    }
-
-                    if(i == recipe.getIngredientsSize()-1){
-                        if(matchedItemStacks.size() == recipe.getIngredientsSize()){
-                            for (ItemStack itemStack : matchedItemStacks) {
-                                decrStackSize(itemStack, itemStack.getCount());
-                            }
-                            return true;
-                        }
-                        return false;
-                    }
-
-                }
-
-
-            }
-
-     /*       for (int i = 1; i< inventory.size(); i++) {
+            
+            for (int i = 1; i< inventory.size(); i++) {
 
                 ItemStack itemStackInBarrel = inventory.get(i);
 
@@ -348,7 +318,7 @@ public class TileEntityBarrel extends TileEntityHopper {
                     }
                 }
                 return false;
-            }*/
+            }
         }
         return false;
     }
@@ -746,17 +716,6 @@ public class TileEntityBarrel extends TileEntityHopper {
             }
         }
         return true;
-    }
-
-    public int getInventoryNonNullSize(){
-        int num = 0;
-        for (int i = 0; i < inventory.size(); i++) {
-            if(ItemStack.areItemStacksEqual(inventory.get(i), ItemStack.EMPTY)){
-                break;
-            }
-            num++;
-        }
-        return num;
     }
 
     @Override
