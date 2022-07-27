@@ -7,7 +7,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = Bruaket.MODID, name = Bruaket.NAME, version = Bruaket.VERSION)
+@Mod(modid = Bruaket.MODID, name = Bruaket.NAME, version = Bruaket.VERSION,
+        dependencies = "required-after:crafttweaker"
+)
 public enum Bruaket {
 
     INSTANCE;
