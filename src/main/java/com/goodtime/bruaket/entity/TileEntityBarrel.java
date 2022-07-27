@@ -30,10 +30,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class TileEntityBarrel extends TileEntityHopper {
 
@@ -50,6 +47,8 @@ public class TileEntityBarrel extends TileEntityHopper {
     private LinkedList<IRecipe> currentRecipes = null;
 
     private StringBuffer history = new StringBuffer();
+
+    LinkedHashMap<Integer, ItemStack> matchedItemStacks = new LinkedHashMap<>();
 
     private ItemStack result;
 
@@ -243,9 +242,11 @@ public class TileEntityBarrel extends TileEntityHopper {
             if (!this.isOnTransferCooldown()) {
 
                 if(result != null){
-                    this.drop(result, 1, true);
-                    result = null;
+                    decrMatched();
+                    resultExport();
                 }
+
+
                 barrel.setCanOutPower(false);
                 this.setTransferCooldown(0);
                 this.updateBarrel();
@@ -265,12 +266,10 @@ public class TileEntityBarrel extends TileEntityHopper {
                 }
 
                 if (flag) {
-                    if(!this.isCraftEmpty() && this.canOut()){
+                    if(!this.isCraftEmpty() && this.fullMatch()){
                         IRecipe recipe = currentRecipes.get(0);
 
                         result = recipe.getRecipeOutput();
-
-                        this.initializationRecipe();
 
                         this.setTransferCooldown((int)recipe.getTime());
                     }
@@ -283,22 +282,60 @@ public class TileEntityBarrel extends TileEntityHopper {
         return false;
     }
 
-    //是否可以输出合成结果。已知可能bug:当桶内有相同物品但却占两格空间，将无法正常输出结果。当丢入材料大于所需材料数量时无法正常输出
-    public boolean canOut(){
+
+    public void resultExport(){
+        if(getNoEmptyItemSize() < matchedItemStacks.size()){
+            this.drop(result, 1, true);
+
+            this.initializationRecipe();
+
+            result = null;
+
+            matchedItemStacks.clear();
+        }else {
+            int num = 0;
+            for (int i = 1; i<inventory.size(); i++) {
+                ItemStack itemInBarrel = inventory.get(i);
+                for (Integer integer : matchedItemStacks.keySet()) {
+                    ItemStack matchedItem = matchedItemStacks.get(integer);
+                    if(ItemStack.areItemStacksEqual(itemInBarrel, matchedItem)){
+                        num ++;
+                    }
+                }
+            }
+
+            if(num == matchedItemStacks.size()){
+                this.drop(result, 1, true);
+            }else {
+                this.drop(result, 1, true);
+
+                this.initializationRecipe();
+
+                result = null;
+
+                matchedItemStacks.clear();
+            }
+
+        }
+    }
+
+    //是否完全匹配合成表。已知bug：当丢入材料为堆叠物品且数量不等于所需材料数量，无法正常输出。
+    public boolean fullMatch(){
         if(currentRecipes != null && currentRecipes.size() == 1){
             IRecipe recipe = currentRecipes.get(0);
 
-            LinkedList<ItemStack> matchedItemStacks = new LinkedList<>();
-            
             for (int i = 1; i< inventory.size(); i++) {
 
                 ItemStack itemStackInBarrel = inventory.get(i);
 
+                if(itemStackInBarrel.isEmpty()){
+                    continue;
+                }
+
                 for (IngredientStack ingredient : recipe.getIngredients()) {
                     for (ItemStack stacksWithSize : ingredient.getMatchingStacksWithSizes()) {
                         if(ItemStack.areItemStacksEqual(itemStackInBarrel, stacksWithSize)){
-                            matchedItemStacks.add(itemStackInBarrel.copy());
-                            decrStackSize(itemStackInBarrel, stacksWithSize.getCount());
+                            matchedItemStacks.put(i, itemStackInBarrel.copy());
                             break;
                         }
                     }
@@ -309,19 +346,24 @@ public class TileEntityBarrel extends TileEntityHopper {
             if(matchedItemStacks.size() == recipe.getIngredientsSize()){
                 return true;
             }else {
-                for (ItemStack matchedItemStack : matchedItemStacks) {
-                    int index = indexOf(matchedItemStack);
-                    if(index != -1){
-                        setInventorySlotContents(index, matchedItemStack);
-                    }else {
-                        putCraftInInventorySlots((IInventory) null, this, matchedItemStack, (EnumFacing) null);
-                    }
-                }
                 return false;
             }
         }
         return false;
     }
+
+    public void decrMatched(){
+        for (int i = 1; i < inventory.size(); i++) {
+            if(inventory.get(i).isEmpty()){
+                continue;
+            }
+            ItemStack itemStack = matchedItemStacks.get(i);
+            if(itemStack != null){
+                decrStackSize(i, itemStack.getCount());
+            }
+        }
+    }
+
 
     //塞入掉落物
     public static boolean pullItems(TileEntityBarrel barrel) {
@@ -717,6 +759,18 @@ public class TileEntityBarrel extends TileEntityHopper {
         }
         return true;
     }
+
+    public int getNoEmptyItemSize(){
+        int num = 0;
+        for (int i = 1; i < this.inventory.size(); i++) {
+            if(inventory.get(i).isEmpty()){
+                continue;
+            }
+            num++;
+        }
+        return num;
+    }
+
 
     @Override
     public int getInventoryStackLimit() {
