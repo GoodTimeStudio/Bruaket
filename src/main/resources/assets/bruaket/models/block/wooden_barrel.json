@@ -1,0 +1,10 @@
+{
+    "parent": "block/orientable",
+    "textures": {
+        "up": "blocks/wooden_barrel_top",
+        "front": "blocks/wooden_barrel_front_empty",
+        "side": "blocks/wooden_barrel_side",
+        "down": "blocks/wooden_barrel_bottom"
+
+    }
+}

@@ -1,6 +1,3 @@
 {
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "bruaket:item/wooden_barrel"
-  }
+    "parent": "bruaket:block/wooden_barrel"
 }
