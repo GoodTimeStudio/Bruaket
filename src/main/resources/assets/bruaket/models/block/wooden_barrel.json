@@ -1,10 +1,10 @@
 {
     "parent": "block/orientable",
     "textures": {
-        "up": "blocks/wooden_barrel_top",
-        "front": "blocks/wooden_barrel_front_empty",
-        "side": "blocks/wooden_barrel_side",
-        "down": "blocks/wooden_barrel_bottom"
+        "top": "bruaket:blocks/wooden_barrel_top",
+        "front": "bruaket:blocks/wooden_barrel_front_empty",
+        "side": "bruaket:blocks/wooden_barrel_side",
+        "bottom": "bruaket:blocks/wooden_barrel_bottom"
 
     }
 }
