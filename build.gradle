@@ -83,9 +83,11 @@ dependencies {
 
     //runtimeOnly 'CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.20.674'
     //compileOnly 'CraftTweaker2:CraftTweaker2-API:4.1.20.674:deobf'
-    compile 'CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.20.674'
+    compile 'CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.1.20.674:deobf'
 
     compileOnly fg.deobf("mezz.jei:jei_1.12.2:4.16.1.302:api")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
     // compile "some.group:artifact:version"
@@ -143,4 +145,8 @@ publishing {
 // Fix resources folder not being loaded in Intellij
 sourceSets {
     main { output.resourcesDir = output.classesDir }
+}
+
+test {
+    useJUnitPlatform()
 }

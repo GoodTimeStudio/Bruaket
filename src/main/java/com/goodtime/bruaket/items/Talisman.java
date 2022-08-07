@@ -6,9 +6,9 @@ import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-public class Talisman extends Item {
+import static com.goodtime.bruaket.core.Bruaket.MODID;
 
-    private final String MODID = Bruaket.MODID;
+public class Talisman extends Item {
 
     public Talisman(String registerName){
         this.setRegistryName(MODID, registerName);

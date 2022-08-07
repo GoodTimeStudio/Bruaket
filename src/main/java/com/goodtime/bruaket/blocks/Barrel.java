@@ -121,9 +121,9 @@ public class Barrel extends BlockContainer {
 
         if (stack.hasDisplayName()) {
             if (tileentity != null) {
-                tileentity.setCustomName(stack.getDisplayName());
+//                tileentity.setCustomName(stack.getDisplayName());
                 if(placer instanceof EntityPlayer) {
-                    tileentity.setOwner(placer.getUniqueID());
+//                    tileentity.setOwner(placer.getUniqueID());
                 }
             }
         }
@@ -138,9 +138,9 @@ public class Barrel extends BlockContainer {
             TileEntity tileentity = worldIn.getTileEntity(pos);
             if(tileentity instanceof TileEntityBarrel){
                 if (playerIn.isSneaking()){
-                    TileEntityBarrel.dropAllItems((TileEntityBarrel)tileentity);
+//                    TileEntityBarrel.dropAllItems((TileEntityBarrel)tileentity);
                 }else {
-                    TileEntityBarrel.dropLastItem((TileEntityBarrel)tileentity);
+//                    TileEntityBarrel.dropLastItem((TileEntityBarrel)tileentity);
                 }
             }
             return true;
@@ -153,9 +153,9 @@ public class Barrel extends BlockContainer {
             TileEntity tileentity = worldIn.getTileEntity(pos);
             if(tileentity instanceof TileEntityBarrel){
                 if(playerIn.isSneaking()){
-                    ((TileEntityBarrel) tileentity).getCurrentRecipe().forEach(recipe -> System.out.println(recipe.getName()));
+//                    ((TileEntityBarrel) tileentity).getCurrentRecipe().forEach(recipe -> System.out.println(recipe.getName()));
                 }else {
-                    TileEntityBarrel.dropTalisman((TileEntityBarrel) tileentity);
+//                    TileEntityBarrel.dropTalisman((TileEntityBarrel) tileentity);
                 }
             }
         }
@@ -167,7 +167,6 @@ public class Barrel extends BlockContainer {
 
         if (tileentity instanceof TileEntityBarrel) {
             InventoryHelper.dropInventoryItems(worldIn, pos, (TileEntityBarrel)tileentity);
-            ((TileEntityBarrel) tileentity).clearRecipe();
             worldIn.updateComparatorOutputLevel(pos, this);
         }
 

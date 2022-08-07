@@ -1,158 +1,62 @@
 package com.goodtime.bruaket.recipe;
 
-
-import com.goodtime.bruaket.core.Bruaket;
-import com.goodtime.bruaket.recipe.bruaket.IRecipe;
-import com.goodtime.bruaket.recipe.bruaket.IRecipeList;
-import com.google.common.collect.ImmutableList;
+import crafttweaker.CraftTweakerAPI;
+import crafttweaker.api.item.IIngredient;
+import crafttweaker.api.minecraft.CraftTweakerMC;
+import crafttweaker.mc1120.util.CraftTweakerHacks;
+import crafttweaker.mc1120.util.CraftTweakerPlatformUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import util.ItemUtils;
+import net.minecraftforge.oredict.OreDictionary;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.HashMap;
 
-public class RecipeList implements IRecipeList {
+public class RecipeList  {
 
-    public static final RecipeList instance = new RecipeList();
+    private final HashMap<RecipeIngredients, IBruaketRecipe> recipesMap = new HashMap<>();
+    private final HashMap<RecipeIngredients, FuzzyBruaketRecipe> fuzzyRecipesMap = new HashMap<>();
 
-    private final LinkedHashMap<ResourceLocation, IRecipe> RECIPE_LIST = new LinkedHashMap<>();
-
-    private final LinkedHashMap<String, LinkedList<IRecipe>> DIVIDED_LIST = new LinkedHashMap<>();
-
-    private ImmutableList<IRecipe> IMMUTABLE_COPY = null;
-
-
-    @Override
-    public Map<ResourceLocation, IRecipe> getRecipes () {
-        return RECIPE_LIST;
+    public void addRecipe (IBruaketRecipe recipe) {
+        recipesMap.put(recipe.getIngredients(), recipe);
     }
 
-    @Override
     @Nullable
-    public IRecipe getRecipeByOutput (ItemStack output) {
-        for (IRecipe recipe : RECIPE_LIST.values()) {
-            if (ItemUtils.areStacksEqualIgnoreSize(output, recipe.getRecipeOutput())) {
-                return recipe;
-            }
+    public IBruaketRecipe matches(RecipeIngredients ingredients) {
+        return recipesMap.get(ingredients);
+    }
+
+    /**
+     * Match a recipe using barrel's inventory.
+     * @param barrelInventory item stacks of the barrel inventory. The array length must be 10,
+     *                        and the first item must be the item stack of talisman.
+     *                        Elements of this array can be null.
+     * @return a @{@link IBruaketRecipe} if there is a match, otherwise null
+     */
+    public IBruaketRecipe matches(ItemStack[] barrelInventory) {
+        if (barrelInventory.length != 10) {
+            throw new IllegalArgumentException("Length of the item stacks must be 10");
+        }
+        HashSet<IIngredient> ingredients = new HashSet<>();
+        for (int i = 1; i < barrelInventory.length; i++) {
+            ingredients.add(CraftTweakerMC.getIIngredient(barrelInventory));
+        }
+        IBruaketRecipe recipe = matches(new RecipeIngredients(
+                barrelInventory[0].getItem().getRegistryName(), ingredients));
+        if (recipe != null && recipe.matches(barrelInventory)) {
+            return recipe;
         }
 
+        // TODO: ore dict - fuzzy match
+        OreDictionary.getOreIDs()
         return null;
     }
 
-    public LinkedList<IRecipe> getRecipeListByBarrelAndTalisMan(String barrel, String talisman){
-
-        String splitter = talisman + "&" + barrel;
-
-        LinkedList<IRecipe> recipes = DIVIDED_LIST.get(splitter);
-
-        return recipes.isEmpty() ? null : recipes;
-    }
-
-    public LinkedList<IRecipe> getRecipeListByItem(ItemStack itemStack, LinkedList<IRecipe> currentRecipe){
-        LinkedList<IRecipe> recipes = new LinkedList<>();
-        if(currentRecipe != null){
-            currentRecipe.forEach(recipe -> {
-                if(recipe.contains(itemStack)){
-                    recipes.add(recipe);
-                }
-            });
+    public static RecipeIngredients getFuzzyRecipeIngredients(RecipeIngredients recipeIngredients) {
+        for (IIngredient ing : recipeIngredients.getIngredients()) {
 
         }
-        return recipes.isEmpty() ? null : recipes;
-
+        RecipeIngredients ret = new RecipeIngredients(recipeIngredients.getTalisman(), )
     }
-
-    @Override
-    public List<IRecipe> getRecipeList () {
-        if (IMMUTABLE_COPY == null) {
-            IMMUTABLE_COPY = ImmutableList.copyOf(RECIPE_LIST.values());
-        }
-
-        return IMMUTABLE_COPY;
-    }
-
-    @Override
-    public IRecipe makeAndAddRecipe (String name, String barrel, @Nonnull ItemStack result, String talisman, int time, Object... recipe) {
-        BruaketRecipe newRecipe = new BruaketRecipe(name,barrel, result, talisman, time, recipe);
-        addRecipe(newRecipe);
-        return newRecipe;
-    }
-
-    @Override
-    public IRecipe makeAndReplaceRecipe (String name, String barrel, @Nonnull ItemStack result, String talisman, int time, Object... recipe) throws IndexOutOfBoundsException {
-        ResourceLocation nameResolved = new ResourceLocation(Bruaket.MODID, name);
-        if (!RECIPE_LIST.containsKey(nameResolved)) {
-            throw new IndexOutOfBoundsException("Key '" + name + "' is not contained in the recipe list; use `makeAndAddRecipe` instead or check your spelling.");
-        }
-        BruaketRecipe newRecipe = new BruaketRecipe(name, barrel, result, talisman, time, recipe);
-        addRecipe(newRecipe);
-        return newRecipe;
-    }
-
-    @Override
-    public void addRecipe (IRecipe recipe) {
-        IMMUTABLE_COPY = null;
-        RECIPE_LIST.put(recipe.getName(), recipe);
-
-        String splitter = recipe.getTailsman() + "&" + recipe.getBarrel();
-
-        if(!DIVIDED_LIST.containsKey(splitter)){
-            DIVIDED_LIST.put(splitter, new LinkedList<>());
-        }
-        DIVIDED_LIST.get(splitter).add(recipe);
-    }
-
-    @Override
-    @Nullable
-    public IRecipe getRecipe (ResourceLocation name) {
-        return RECIPE_LIST.get(name);
-    }
-
-    @Override
-    public void removeRecipe (IRecipe recipe) {
-        IMMUTABLE_COPY = null;
-        RECIPE_LIST.remove(recipe.getName());
-    }
-
-    @Override
-    public void removeRecipe (ResourceLocation name) {
-        IMMUTABLE_COPY = null;
-        RECIPE_LIST.remove(name);
-    }
-
-    @Override
-    public ItemStack getOutputByIndex (int index) {
-        if (index < 0 || index >= RECIPE_LIST.size()) {
-            return ItemStack.EMPTY;
-        }
-
-        return getRecipeList().get(index).getRecipeOutput().copy();
-    }
-
-    @Override
-    @Nullable
-    public IRecipe getRecipeByIndex (int index) {
-        if (index < 0 || index >= RECIPE_LIST.size()) {
-            return null;
-        }
-
-        return getRecipeList().get(index);
-    }
-
-    @Override
-    public int indexOf (IRecipe recipe) {
-        if (recipe == null || !RECIPE_LIST.containsKey(recipe.getName())) {
-            return -1;
-        }
-
-        return getRecipeList().indexOf(recipe);
-    }
-
-    @Override
-    public int size () {
-        return RECIPE_LIST.size();
-    }
-
 }

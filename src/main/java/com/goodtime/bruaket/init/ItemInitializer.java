@@ -29,7 +29,10 @@ public class ItemInitializer {
 
     @SubscribeEvent
     public static void register(RegistryEvent.Register<Item> event){
+        registerItems();
+    }
 
+    public static void registerItems() {
         //Item
         logo = Talisman.getItem("logo");
         bucket = Talisman.getItem("bucket").setCreativeTab(Bruaket.CREATIVE_TAB);
