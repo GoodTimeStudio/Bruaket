@@ -3,6 +3,7 @@ package com.goodtime.bruaket.recipe.bruaket;
 import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.items.Talisman;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;

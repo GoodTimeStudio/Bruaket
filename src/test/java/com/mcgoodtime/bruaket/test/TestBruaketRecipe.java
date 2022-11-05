@@ -23,7 +23,6 @@ public class TestBruaketRecipe {
         Bootstrap.register();
         ItemInitializer.registerItems();
     }
-
     @Test
     public void testNormalMatch() {
         BruaketRecipe recipe = new BruaketRecipe(

@@ -10,22 +10,26 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author SuHao
+ * @date 2022/8/8
+ */
 public class BruaketRecipe implements IBruaketRecipe {
 
     /**
-     * 合成所用的桶
+     * Required Barrel
      */
     private final ResourceLocation barrel;
 
     private final RecipeIngredients ingredients;
 
     /**
-     * 合成产出
+     * Recipe result
      */
     private final IIngredient result;
 
     /**
-     * 合成所需时间
+     * Recipe required time
      */
     private final int time;
 
@@ -51,8 +55,16 @@ public class BruaketRecipe implements IBruaketRecipe {
         return result;
     }
 
+
+    /**
+     * Recipe matches
+     *
+     * @param barrelInventory Barrel`s inventory item stack
+     * @return boolean
+     */
     @Override
     public boolean matches(ItemStack[] barrelInventory) {
+        /*If barrel have no talisman*/
         if (barrelInventory[0] == null) {
             return false;
         }
@@ -60,6 +72,7 @@ public class BruaketRecipe implements IBruaketRecipe {
         if (!this.ingredients.getTalisman().equals(barrelInventory[0].getItem().getRegistryName())) {
             return false;
         }
+
         for (IIngredient ing : this.getIngredients().getIngredients()) {
             for (int i = 1; i < barrelInventory.length; i++) {
                 ItemStack itemStack = barrelInventory[i];

@@ -8,6 +8,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 
+/**
+ * 配方成分
+ *
+ * @author SuHao
+ * @date 2022/8/8
+ */
 public class RecipeIngredients {
     private final ResourceLocation talisman;
 
@@ -40,8 +46,12 @@ public class RecipeIngredients {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RecipeIngredients that = (RecipeIngredients) o;
         return talisman.equals(that.talisman) && ingredients.equals(that.ingredients);
     }

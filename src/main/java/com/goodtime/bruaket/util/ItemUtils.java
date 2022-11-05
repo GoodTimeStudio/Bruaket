@@ -1,4 +1,4 @@
-package util;
+package com.goodtime.bruaket.util;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;

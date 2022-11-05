@@ -4,6 +4,9 @@ import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
 
+/**
+ * @author SuHao
+ */
 public class FuzzyBruaketRecipe {
 
     private final RecipeIngredients ingredients;

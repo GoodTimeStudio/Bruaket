@@ -6,6 +6,12 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 
+/**
+ * Recipe for bucket
+ *
+ * @author SuHao
+ * @date 2022/8/8
+ */
 public interface IBruaketRecipe {
 
     /**
