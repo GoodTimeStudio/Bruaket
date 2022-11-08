@@ -9,6 +9,7 @@ import crafttweaker.mc1120.oredict.MCOreDictEntry;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -37,16 +38,14 @@ public class TestBruaketRecipe {
                 )
         );
 
-        ItemStack[] barrelInventory = new ItemStack[10];
-        assertFalse(recipe.matches(barrelInventory));
+        NonNullList<ItemStack> barrelInventory = NonNullList.withSize(10, ItemStack.EMPTY);
 
-        barrelInventory[0] = new ItemStack(ItemInitializer.fire_talisman);
         // not enough item
-        barrelInventory[2] = new ItemStack(Items.APPLE, 2);
-        assertFalse(recipe.matches(barrelInventory));
+        barrelInventory.set(1, new ItemStack(Items.APPLE, 2));
+        assertFalse(recipe.matches(ItemInitializer.fire_talisman.getRegistryName(), barrelInventory));
 
-        barrelInventory[2].setCount(3);
-        assertTrue(recipe.matches(barrelInventory));
+        barrelInventory.get(1).setCount(3);
+        assertTrue(recipe.matches(ItemInitializer.fire_talisman.getRegistryName(), barrelInventory));
     }
 
     @Test
@@ -63,9 +62,9 @@ public class TestBruaketRecipe {
                 )
         );
 
-        ItemStack[] barrelInventory = new ItemStack[10];
-        barrelInventory[0] = new ItemStack(ItemInitializer.ultra_flamma_talisman);
-        barrelInventory[1] = new ItemStack(Items.IRON_INGOT, 9);
-        assertTrue(recipe.matches(barrelInventory));
+        NonNullList<ItemStack> barrelInventory = NonNullList.withSize(10, ItemStack.EMPTY);
+
+        barrelInventory.set(1, new ItemStack(Items.IRON_INGOT, 9));
+        assertTrue(recipe.matches(ItemInitializer.ultra_flamma_talisman.getRegistryName(), barrelInventory));
     }
 }

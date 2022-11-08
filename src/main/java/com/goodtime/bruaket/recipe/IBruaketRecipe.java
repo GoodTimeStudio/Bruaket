@@ -2,6 +2,7 @@ package com.goodtime.bruaket.recipe;
 
 import crafttweaker.api.item.IIngredient;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
@@ -22,12 +23,12 @@ public interface IBruaketRecipe {
 
     /***
      * Checks if the given tailsman and crafting ingredients match this recipe
-     * @param barrelInventory item stacks of the barrel inventory. The array length must be 10,
+     * @param barrelInventory item stacks of the barrel inventory. The array length must be 9,
      *                        and the first element must be the item stack of talisman.
      *                        Elements of this array can be null.
      * @return true if match
      */
-    boolean matches(ItemStack[] barrelInventory);
+    boolean matches(ResourceLocation talisman, NonNullList<ItemStack> barrelInventory);
 
     /**
      * Get the registry name of the barrel used to craft this recipe

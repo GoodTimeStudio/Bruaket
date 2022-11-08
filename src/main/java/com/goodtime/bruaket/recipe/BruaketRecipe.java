@@ -4,6 +4,7 @@ import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -63,19 +64,13 @@ public class BruaketRecipe implements IBruaketRecipe {
      * @return boolean
      */
     @Override
-    public boolean matches(ItemStack[] barrelInventory) {
-        /*If barrel have no talisman*/
-        if (barrelInventory[0] == null) {
-            return false;
-        }
-
-        if (!this.ingredients.getTalisman().equals(barrelInventory[0].getItem().getRegistryName())) {
+    public boolean matches(ResourceLocation talisman, NonNullList<ItemStack> barrelInventory) {
+        if (!this.ingredients.getTalisman().equals(talisman)) {
             return false;
         }
 
         for (IIngredient ing : this.getIngredients().getIngredients()) {
-            for (int i = 1; i < barrelInventory.length; i++) {
-                ItemStack itemStack = barrelInventory[i];
+            for (ItemStack itemStack : barrelInventory) {
                 if (itemStack == null) {
                     continue;
                 }

@@ -10,6 +10,7 @@ import crafttweaker.api.minecraft.CraftTweakerMC;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -39,20 +40,17 @@ public class TestRecipeList {
                 )
         );
 
-        ItemStack[] barrelInventory = new ItemStack[10];
+        NonNullList<ItemStack> barrelInventory = NonNullList.withSize(9, ItemStack.EMPTY);
 
         RecipeList rl = new RecipeList();
         rl.addRecipe(recipe);
 
-        barrelInventory[0] = new ItemStack(ItemInitializer.fire_talisman);
+//        barrelInventory.set(2, new ItemStack(Items.APPLE, 2));
+//        assertNull(rl.matches(barrelInventory));
 
-        barrelInventory[2] = new ItemStack(Items.APPLE, 2);
+        barrelInventory.set(2, new ItemStack(Items.APPLE, 3));
 
-        assertNull(rl.matches(barrelInventory));
-
-        barrelInventory[2] = new ItemStack(Items.APPLE, 3);
-
-        assertNotNull(rl.matches(barrelInventory));
+        assertNotNull(rl.matches(ItemInitializer.fire_talisman, barrelInventory));
     }
 
 }

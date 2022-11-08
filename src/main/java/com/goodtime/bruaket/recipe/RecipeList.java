@@ -1,18 +1,15 @@
 package com.goodtime.bruaket.recipe;
 
-import crafttweaker.CraftTweakerAPI;
+import com.goodtime.bruaket.entity.barrel.IBarrel;
+import com.goodtime.bruaket.items.Talisman;
 import crafttweaker.api.item.IIngredient;
-import crafttweaker.api.item.IItemStack;
 import crafttweaker.api.minecraft.CraftTweakerMC;
-import crafttweaker.mc1120.util.CraftTweakerHacks;
-import crafttweaker.mc1120.util.CraftTweakerPlatformUtils;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.util.NonNullList;
 
 import javax.annotation.Nullable;
-import java.util.*;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class RecipeList  {
 
@@ -33,20 +30,26 @@ public class RecipeList  {
      *                        Elements of this array can be null.
      * @return a @{@link IBruaketRecipe} if there is a match, otherwise null
      */
-    public IBruaketRecipe matches(ItemStack[] barrelInventory) {
-        if (barrelInventory.length != 10) {
-            throw new IllegalArgumentException("Length of the item stacks must be 10");
+    public IBruaketRecipe matches(Talisman talisman, NonNullList<ItemStack> barrelInventory) {
+        if (barrelInventory.size() != IBarrel.MAX_SIZE) {
+            throw new IllegalArgumentException("Length of the item stacks must be " + IBarrel.MAX_SIZE);
         }
+
+        if (talisman == null){
+            return null;
+        }
+
         HashSet<IIngredient> ingredients = new HashSet<>();
-        for (int i = 1; i < barrelInventory.length; i++) {
-            ItemStack itemStack = barrelInventory[i];
-            if(itemStack != null){
+        for (int i = 1; i < barrelInventory.size(); i++) {
+            ItemStack itemStack = barrelInventory.get(i);
+            if(!itemStack.isEmpty()){
                 ingredients.add(CraftTweakerMC.getIIngredient(itemStack));
             }
         }
 
-        IBruaketRecipe recipe = matches(new RecipeIngredients(barrelInventory[0].getItem().getRegistryName(), ingredients));
-        if (recipe != null && recipe.matches(barrelInventory)) {
+        IBruaketRecipe recipe = matches(new RecipeIngredients(talisman.getRegistryName(), ingredients));
+
+        if (recipe != null && recipe.matches(talisman.getRegistryName(), barrelInventory)) {
             return recipe;
         }
 
