@@ -17,14 +17,14 @@ import java.util.List;
 
 public class BarrelUtil {
 
-    public static boolean pullItems(IBarrel barrel) {
+    public static boolean pullItems(IBarrelTileEntity barrel) {
        /* Boolean ret = net.minecraftforge.items.VanillaInventoryCodeHooks.extractHook(hopper);
         if (ret != null) return ret;*/
 
         List<EntityItem> items = TileEntityHopper.getCaptureItems(barrel.getWorld(), barrel.getXPos(), barrel.getYPos(), barrel.getZPos());
         if (!items.isEmpty()) {
             EntityItem entityitem = items.get(0);
-            return putDropInInventoryAllSlots((IInventory) null, barrel, entityitem);
+            return putDropInInventoryAllSlots(null, barrel, entityitem);
         }
         return false;
     }
@@ -38,7 +38,7 @@ public class BarrelUtil {
      * @param entity      实体
      * @return boolean
      */
-    public static boolean putDropInInventoryAllSlots(IInventory source, IBarrel destination, EntityItem entity) {
+    public static boolean putDropInInventoryAllSlots(IInventory source, IBarrelTileEntity destination, EntityItem entity) {
         boolean flag = false;
 
         if (entity == null) {
@@ -51,7 +51,7 @@ public class BarrelUtil {
             if (drop.getItem() instanceof Talisman) {
                 result = putTalisman(destination, drop);
             } else {
-                result = TileEntityHopper.putStackInInventoryAllSlots(source, destination, drop, (EnumFacing) null);
+                result = TileEntityHopper.putStackInInventoryAllSlots(source, destination, drop, null);
                 System.out.println(result);
             }
 
@@ -66,7 +66,7 @@ public class BarrelUtil {
         }
     }
 
-    public static ItemStack putTalisman(IBarrel barrel, ItemStack talisman) {
+    public static ItemStack putTalisman(IBarrelTileEntity barrel, ItemStack talisman) {
         if (!barrel.hasTalisMan()) {
             barrel.setTalisMan((Talisman) talisman.getItem());
             barrel.markDirty();
@@ -106,7 +106,7 @@ public class BarrelUtil {
     }
 
     //桶下方的方块是否为空气
-    public static boolean bottomIsAir(IBarrel barrel) {
+    public static boolean bottomIsAir(IBarrelTileEntity barrel) {
         World worldIn = barrel.getWorld();
         int x = MathHelper.floor(barrel.getXPos());
         int y = MathHelper.floor(barrel.getYPos()) - 1;
@@ -119,7 +119,7 @@ public class BarrelUtil {
     }
 
     //抛出所有储存的物品(除了符文)
-    public static void dropAllItems(IBarrel barrel) {
+    public static void dropAllItems(IBarrelTileEntity barrel) {
         if(!barrel.isEmpty()){
             for (int i = 0; i < barrel.getSizeInventory(); i++) {
                 ItemStack itemStack = barrel.getStackInSlot(i);
@@ -133,7 +133,7 @@ public class BarrelUtil {
     }
 
     //获取最后一个放入的物品
-    private static ItemStack getLastPutItem(IBarrel barrel) {
+    private static ItemStack getLastPutItem(IBarrelTileEntity barrel) {
         ItemStack itemStack = null;
         for (int i = barrel.getSizeInventory() - 1; i >= 0; i--) {
             itemStack = barrel.getStackInSlot(i);
@@ -146,7 +146,7 @@ public class BarrelUtil {
 
 
     //抛出最后放入的物品
-    public static void dropLastItem(IBarrel barrel) {
+    public static void dropLastItem(IBarrelTileEntity barrel) {
         if(!barrel.isEmpty()){
             ItemStack itemStack = getLastPutItem(barrel);
             if (itemStack != null) {
@@ -157,7 +157,7 @@ public class BarrelUtil {
         }
     }
 
-    public static void dropTalisman(IBarrel barrel) {
+    public static void dropTalisman(IBarrelTileEntity barrel) {
         barrel.drop(new ItemStack(barrel.getTalisMan(),1),1, false);
         barrel.setTalisMan(null);
     }

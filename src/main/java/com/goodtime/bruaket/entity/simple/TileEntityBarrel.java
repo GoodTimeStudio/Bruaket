@@ -3,7 +3,7 @@ package com.goodtime.bruaket.entity.simple;
 
 import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.entity.barrel.BarrelUtil;
-import com.goodtime.bruaket.entity.barrel.IBarrel;
+import com.goodtime.bruaket.entity.barrel.IBarrelTileEntity;
 import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.IBruaketRecipe;
 import com.goodtime.bruaket.recipe.RecipeList;
@@ -19,7 +19,6 @@ import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityHopper;
-import net.minecraft.tileentity.TileEntityLockable;
 import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
@@ -29,7 +28,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrel, ITickable{
+public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelTileEntity, ITickable{
 
     private Talisman talisman;
     private NonNullList<ItemStack> inventory = NonNullList.withSize(MAX_SIZE, ItemStack.EMPTY);
@@ -306,7 +305,7 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrel,
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
-        return false;
+        return true;
     }
 
     @Override

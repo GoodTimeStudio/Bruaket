@@ -1,6 +1,6 @@
 package com.goodtime.bruaket.recipe;
 
-import com.goodtime.bruaket.entity.barrel.IBarrel;
+import com.goodtime.bruaket.entity.barrel.IBarrelTileEntity;
 import com.goodtime.bruaket.items.Talisman;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
@@ -16,6 +16,8 @@ public class RecipeList  {
     private final HashMap<RecipeIngredients, IBruaketRecipe> recipesMap = new HashMap<>();
     private final HashMap<RecipeIngredients, FuzzyBruaketRecipe> fuzzyRecipesMap = new HashMap<>();
     public void addRecipe (IBruaketRecipe recipe) {
+        System.out.println(recipe.getIngredients().getIngredients().toString());
+        System.out.println(recipe.getIngredients().getTalisman().toString());
         recipesMap.put(recipe.getIngredients(), recipe);
     }
     @Nullable
@@ -31,8 +33,8 @@ public class RecipeList  {
      * @return a @{@link IBruaketRecipe} if there is a match, otherwise null
      */
     public IBruaketRecipe matches(Talisman talisman, NonNullList<ItemStack> barrelInventory) {
-        if (barrelInventory.size() != IBarrel.MAX_SIZE) {
-            throw new IllegalArgumentException("Length of the item stacks must be " + IBarrel.MAX_SIZE);
+        if (barrelInventory.size() != IBarrelTileEntity.MAX_SIZE) {
+            throw new IllegalArgumentException("Length of the item stacks must be " + IBarrelTileEntity.MAX_SIZE);
         }
 
         if (talisman == null){
@@ -40,9 +42,8 @@ public class RecipeList  {
         }
 
         HashSet<IIngredient> ingredients = new HashSet<>();
-        for (int i = 1; i < barrelInventory.size(); i++) {
-            ItemStack itemStack = barrelInventory.get(i);
-            if(!itemStack.isEmpty()){
+        for (ItemStack itemStack : barrelInventory) {
+            if (!itemStack.isEmpty()) {
                 ingredients.add(CraftTweakerMC.getIIngredient(itemStack));
             }
         }

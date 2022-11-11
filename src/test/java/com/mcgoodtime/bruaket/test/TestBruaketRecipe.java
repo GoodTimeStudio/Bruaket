@@ -10,12 +10,14 @@ import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestBruaketRecipe {
 
@@ -37,6 +39,9 @@ public class TestBruaketRecipe {
                         }
                 )
         );
+
+        System.out.println(new ResourceLocation("bruaket:wooden_barrel"));  //result: bruaket:wooden_barrel
+
 
         NonNullList<ItemStack> barrelInventory = NonNullList.withSize(10, ItemStack.EMPTY);
 

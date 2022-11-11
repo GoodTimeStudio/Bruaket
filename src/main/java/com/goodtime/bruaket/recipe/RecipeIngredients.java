@@ -1,7 +1,6 @@
 package com.goodtime.bruaket.recipe;
 
 import crafttweaker.api.item.IIngredient;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Arrays;

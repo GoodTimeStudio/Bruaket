@@ -18,7 +18,7 @@ import stanhebben.zenscript.annotations.ZenMethod;
 public class BruaketTweaker {
 
     @ZenMethod
-    public static void addRecipe(IIngredient output, ResourceLocation barrel, IIngredient[] ingredients, ResourceLocation talisman, int time){
+    public static void addRecipe(IIngredient output, String barrel, IIngredient[] ingredients, String talisman, int time){
         CraftTweaker.LATE_ACTIONS.add(new Add(barrel, output, ingredients, talisman, time));
     }
 
@@ -29,11 +29,11 @@ public class BruaketTweaker {
         private final IIngredient[] ingredients;
         private final int time;
 
-        private Add(ResourceLocation barrel, IIngredient output, IIngredient[] ingredients, ResourceLocation talisman, int time){
-            this.barrel = barrel;
+        private Add(String barrel, IIngredient output, IIngredient[] ingredients, String talisman, int time){
+            this.barrel = new ResourceLocation(barrel);
             this.output = output;
             this.ingredients = ingredients;
-            this.talisman = talisman;
+            this.talisman = new ResourceLocation(talisman);
             this.time = time;
         }
 

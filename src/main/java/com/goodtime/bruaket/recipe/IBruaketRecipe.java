@@ -5,8 +5,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.List;
-
 /**
  * Recipe for bucket
  *

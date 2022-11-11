@@ -2,14 +2,11 @@ package com.goodtime.bruaket.recipe;
 
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author SuHao
@@ -71,7 +68,7 @@ public class BruaketRecipe implements IBruaketRecipe {
 
         for (IIngredient ing : this.getIngredients().getIngredients()) {
             for (ItemStack itemStack : barrelInventory) {
-                if (itemStack == null) {
+                if (itemStack.isEmpty()) {
                     continue;
                 }
                 if (ing.matches(CraftTweakerMC.getIItemStack(itemStack))) {

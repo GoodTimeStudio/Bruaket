@@ -3,7 +3,6 @@ package com.goodtime.bruaket.init;
 import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.items.Talisman;
-import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;

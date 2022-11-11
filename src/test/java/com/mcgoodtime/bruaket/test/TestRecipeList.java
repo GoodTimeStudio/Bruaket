@@ -5,7 +5,6 @@ import com.goodtime.bruaket.recipe.BruaketRecipe;
 import com.goodtime.bruaket.recipe.RecipeIngredients;
 import com.goodtime.bruaket.recipe.RecipeList;
 import crafttweaker.api.item.IIngredient;
-import crafttweaker.api.item.IItemStack;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
@@ -16,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestRecipeList {
 
@@ -33,9 +32,10 @@ public class TestRecipeList {
                 CraftTweakerMC.getIIngredient(Items.DIAMOND),
                 100,
                 new RecipeIngredients(
-                        ItemInitializer.fire_talisman.getRegistryName(),
+                        ItemInitializer.stone_talisman.getRegistryName(),
                         new IIngredient[] {
-                                CraftTweakerMC.getIIngredient(new ItemStack(Items.APPLE, 3))
+                                CraftTweakerMC.getIIngredient(new ItemStack(Items.BOOK, 1)),
+                                CraftTweakerMC.getIIngredient(new ItemStack(Items.STICK, 1))
                         }
                 )
         );
@@ -48,9 +48,10 @@ public class TestRecipeList {
 //        barrelInventory.set(2, new ItemStack(Items.APPLE, 2));
 //        assertNull(rl.matches(barrelInventory));
 
-        barrelInventory.set(2, new ItemStack(Items.APPLE, 3));
+        barrelInventory.set(0, new ItemStack(Items.STICK, 1));
+        barrelInventory.set(1, new ItemStack(Items.BOOK, 1));
 
-        assertNotNull(rl.matches(ItemInitializer.fire_talisman, barrelInventory));
+        assertNotNull(rl.matches(ItemInitializer.stone_talisman, barrelInventory));
     }
 
 }

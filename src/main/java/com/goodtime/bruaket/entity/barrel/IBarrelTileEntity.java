@@ -1,15 +1,8 @@
 package com.goodtime.bruaket.entity.barrel;
 
 import com.goodtime.bruaket.items.Talisman;
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 /**
@@ -18,7 +11,7 @@ import net.minecraft.world.World;
  * @author ETO
  * @date 2022/11/07
  */
-public interface IBarrel extends IInventory {
+public interface IBarrelTileEntity extends IInventory {
 
     /**
      * Max inventory size
