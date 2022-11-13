@@ -162,11 +162,11 @@ public class Barrel extends BlockContainer {
 
         if (tileentity instanceof IBarrelTileEntity) {
             IBarrelTileEntity barrel = (IBarrelTileEntity) tileentity;
-
-            BarrelUtil.dropTalisman(barrel);
-
-            InventoryHelper.dropInventoryItems(worldIn, pos, barrel);
-            worldIn.updateComparatorOutputLevel(pos, this);
+            if(!barrel.isEmpty()){
+                BarrelUtil.dropTalisman(barrel);
+                InventoryHelper.dropInventoryItems(worldIn, pos, barrel);
+                worldIn.updateComparatorOutputLevel(pos, this);
+            }
         }
 
         super.breakBlock(worldIn, pos, state);

@@ -16,12 +16,14 @@ public class RecipeList  {
     private final HashMap<RecipeIngredients, IBruaketRecipe> recipesMap = new HashMap<>();
     private final HashMap<RecipeIngredients, FuzzyBruaketRecipe> fuzzyRecipesMap = new HashMap<>();
     public void addRecipe (IBruaketRecipe recipe) {
-        System.out.println(recipe.getIngredients().getIngredients().toString());
-        System.out.println(recipe.getIngredients().getTalisman().toString());
         recipesMap.put(recipe.getIngredients(), recipe);
     }
     @Nullable
     public IBruaketRecipe matches(RecipeIngredients ingredients) {
+        for (RecipeIngredients recipeIngredients : recipesMap.keySet()) {
+            boolean b = recipeIngredients.equals(ingredients);
+            System.out.println("equals-----------"+b);
+        }
         return recipesMap.get(ingredients);
     }
 

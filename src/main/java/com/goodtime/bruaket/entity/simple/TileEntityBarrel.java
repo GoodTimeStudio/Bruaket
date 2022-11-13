@@ -106,7 +106,7 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
                 }
 
                 if (flag) {
-                    if(!this.isEmpty()){
+                    if(!this.isEmpty() && this.hasTalisMan()){
                         RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
 
                         if(recipeList != null){

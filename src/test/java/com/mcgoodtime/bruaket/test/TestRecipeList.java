@@ -1,21 +1,21 @@
 package com.mcgoodtime.bruaket.test;
 
 import com.goodtime.bruaket.init.ItemInitializer;
-import com.goodtime.bruaket.recipe.BruaketRecipe;
-import com.goodtime.bruaket.recipe.RecipeIngredients;
-import com.goodtime.bruaket.recipe.RecipeList;
+import com.goodtime.bruaket.recipe.*;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TestRecipeList {
 
@@ -29,7 +29,7 @@ public class TestRecipeList {
     public void testRecipeList(){
         BruaketRecipe recipe = new BruaketRecipe(
                 Objects.requireNonNull(ItemInitializer.wooden_barrel.getRegistryName()),
-                CraftTweakerMC.getIIngredient(Items.DIAMOND),
+                CraftTweakerMC.getIIngredient(Items.APPLE),
                 100,
                 new RecipeIngredients(
                         ItemInitializer.stone_talisman.getRegistryName(),
@@ -42,16 +42,21 @@ public class TestRecipeList {
 
         NonNullList<ItemStack> barrelInventory = NonNullList.withSize(9, ItemStack.EMPTY);
 
-        RecipeList rl = new RecipeList();
-        rl.addRecipe(recipe);
+        ResourceLocation barrel = ItemInitializer.wooden_barrel.getRegistryName();
 
-//        barrelInventory.set(2, new ItemStack(Items.APPLE, 2));
-//        assertNull(rl.matches(barrelInventory));
+        RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
+        if (recipeList == null) {
+            recipeList = new RecipeList();
+            RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
+        }
+        recipeList.addRecipe(recipe);
 
         barrelInventory.set(0, new ItemStack(Items.STICK, 1));
+        assertNull(recipeList.matches(ItemInitializer.stone_talisman,barrelInventory));
         barrelInventory.set(1, new ItemStack(Items.BOOK, 1));
-
-        assertNotNull(rl.matches(ItemInitializer.stone_talisman, barrelInventory));
+        IBruaketRecipe bruaketRecipe = recipeList.matches(ItemInitializer.stone_talisman, barrelInventory);
+        assertNotNull(bruaketRecipe);
+        System.out.println(bruaketRecipe.getRecipeOutput());
     }
 
 }
