@@ -2,7 +2,7 @@ package com.goodtime.bruaket.blocks;
 
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.entity.barrel.BarrelUtil;
-import com.goodtime.bruaket.entity.barrel.IBarrelTileEntity;
+import com.goodtime.bruaket.entity.barrel.BarrelTileEntity;
 import com.goodtime.bruaket.entity.simple.TileEntityBarrel;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -21,10 +21,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -43,6 +40,10 @@ import java.util.Objects;
 
 public class Barrel extends BlockContainer {
 
+    static {
+        GameRegistry.registerTileEntity(TileEntityBarrel.class, new ResourceLocation("bruaket:barrel"));
+    }
+
     String name;
 
     // FACING  方块的自定义属性，描述放置方块时玩家的朝向
@@ -53,16 +54,17 @@ public class Barrel extends BlockContainer {
 
     private boolean canWork = true;
 
-    public Barrel(String registerName) {
+    public Barrel(String registerName, float hardness){
         super(Material.ROCK);
         name = registerName;
-        this.setHardness(3.0F);
+        this.setHardness(hardness);
         this.setRegistryName(Bruaket.MODID, registerName);
         this.setCreativeTab(Bruaket.CREATIVE_TAB);
         this.setUnlocalizedName(Bruaket.MODID+"." + registerName);
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.DOWN).withProperty(ENABLED, Boolean.TRUE));
         register();
     }
+
 
     private void register() {
 
@@ -71,8 +73,6 @@ public class Barrel extends BlockContainer {
         ForgeRegistries.ITEMS.register(new ItemBlock(this).setRegistryName(name));
 
         modelRegister();
-
-        GameRegistry.registerTileEntity(TileEntityBarrel.class, Objects.requireNonNull(this.getRegistryName()));
     }
 
 
@@ -118,7 +118,7 @@ public class Barrel extends BlockContainer {
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-        IBarrelTileEntity barrel = (IBarrelTileEntity) worldIn.getTileEntity(pos);
+        BarrelTileEntity barrel = (BarrelTileEntity) worldIn.getTileEntity(pos);
 
         if (stack.hasDisplayName()) {
             if (barrel != null) {
@@ -135,11 +135,11 @@ public class Barrel extends BlockContainer {
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (!worldIn.isRemote) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
-            if (tileentity instanceof IBarrelTileEntity) {
+            if (tileentity instanceof BarrelTileEntity) {
                 if (playerIn.isSneaking()) {
-                    BarrelUtil.dropAllItems((IBarrelTileEntity) tileentity);
+                    BarrelUtil.dropAllItems((BarrelTileEntity) tileentity);
                 } else {
-                    BarrelUtil.dropLastItem((IBarrelTileEntity) tileentity);
+                    BarrelUtil.dropLastItem((BarrelTileEntity) tileentity);
                 }
             }
         }
@@ -150,8 +150,8 @@ public class Barrel extends BlockContainer {
     public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn){
         if (!worldIn.isRemote) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
-            if(tileentity instanceof IBarrelTileEntity){
-                BarrelUtil.dropTalisman((IBarrelTileEntity) tileentity);
+            if(tileentity instanceof BarrelTileEntity){
+                BarrelUtil.dropTalisman((BarrelTileEntity) tileentity);
             }
         }
     }
@@ -160,8 +160,8 @@ public class Barrel extends BlockContainer {
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
         TileEntity tileentity = worldIn.getTileEntity(pos);
 
-        if (tileentity instanceof IBarrelTileEntity) {
-            IBarrelTileEntity barrel = (IBarrelTileEntity) tileentity;
+        if (tileentity instanceof BarrelTileEntity) {
+            BarrelTileEntity barrel = (BarrelTileEntity) tileentity;
             if(!barrel.isEmpty()){
                 BarrelUtil.dropTalisman(barrel);
                 InventoryHelper.dropInventoryItems(worldIn, pos, barrel);
@@ -185,7 +185,7 @@ public class Barrel extends BlockContainer {
         boolean flag = worldIn.isBlockPowered(pos) || worldIn.isBlockPowered(pos.up());
 
         TileEntity tileEntity = worldIn.getTileEntity(pos);
-        if (tileEntity instanceof IBarrelTileEntity){
+        if (tileEntity instanceof BarrelTileEntity){
 
             if (flag && canWork) {
                 canWork = false;

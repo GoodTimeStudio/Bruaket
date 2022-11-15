@@ -1,6 +1,6 @@
 package com.goodtime.bruaket.recipe;
 
-import com.goodtime.bruaket.entity.barrel.IBarrelTileEntity;
+import com.goodtime.bruaket.entity.barrel.BarrelTileEntity;
 import com.goodtime.bruaket.items.Talisman;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
@@ -35,8 +35,8 @@ public class RecipeList  {
      * @return a @{@link IBruaketRecipe} if there is a match, otherwise null
      */
     public IBruaketRecipe matches(Talisman talisman, NonNullList<ItemStack> barrelInventory) {
-        if (barrelInventory.size() != IBarrelTileEntity.MAX_SIZE) {
-            throw new IllegalArgumentException("Length of the item stacks must be " + IBarrelTileEntity.MAX_SIZE);
+        if (barrelInventory.size() != BarrelTileEntity.MAX_SIZE) {
+            throw new IllegalArgumentException("Length of the item stacks must be " + BarrelTileEntity.MAX_SIZE);
         }
 
         if (talisman == null){
@@ -46,7 +46,7 @@ public class RecipeList  {
         HashSet<IIngredient> ingredients = new HashSet<>();
         for (ItemStack itemStack : barrelInventory) {
             if (!itemStack.isEmpty()) {
-                ingredients.add(CraftTweakerMC.getIIngredient(itemStack));
+                ingredients.add(CraftTweakerMC.getIItemStackWildcardSize(itemStack));
             }
         }
 

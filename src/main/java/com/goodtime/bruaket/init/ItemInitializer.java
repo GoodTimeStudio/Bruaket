@@ -12,6 +12,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class ItemInitializer {
     //Block
     public static Barrel wooden_barrel;
+    public static Barrel iron_barrel;
+    public static Barrel tinker_barrel;
+
 
     //Item
     public static Item logo;
@@ -37,7 +40,9 @@ public class ItemInitializer {
         bucket = Talisman.getItem("bucket").setCreativeTab(Bruaket.CREATIVE_TAB);
 
         //Barrel
-        wooden_barrel = new Barrel("wooden_barrel");
+        wooden_barrel = new Barrel("wooden_barrel", 3.0F);
+        iron_barrel = new Barrel("iron_barrel", 6.0F);
+        tinker_barrel = new Barrel("tinker_barrel", 6.0F);
 
         //Talisman
         stone_talisman = new Talisman("stone_talisman");

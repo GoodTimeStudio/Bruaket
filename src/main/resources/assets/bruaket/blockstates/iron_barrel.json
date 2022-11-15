@@ -1,0 +1,9 @@
+{
+  "variants": {
+    "facing=north": { "model": "bruaket:iron_barrel" },
+    "facing=south": { "model": "bruaket:iron_barrel", "y": 180 },
+    "facing=west":  { "model": "bruaket:iron_barrel", "y": 270 },
+    "facing=east":  { "model": "bruaket:iron_barrel", "y": 90 },
+    "facing=down":  { "model": "bruaket:iron_barrel"}
+  }
+}

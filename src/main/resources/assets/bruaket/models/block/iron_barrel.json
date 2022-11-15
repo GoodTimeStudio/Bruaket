@@ -1,0 +1,10 @@
+{
+  "parent": "block/orientable",
+  "textures": {
+    "top": "bruaket:blocks/iron_barrel_top",
+    "front": "bruaket:blocks/iron_barrel_front_empty",
+    "side": "bruaket:blocks/iron_barrel_side",
+    "bottom": "bruaket:blocks/iron_barrel_bottom"
+
+  }
+}

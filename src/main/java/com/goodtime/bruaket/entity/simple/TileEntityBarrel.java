@@ -3,11 +3,14 @@ package com.goodtime.bruaket.entity.simple;
 
 import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.entity.barrel.BarrelUtil;
-import com.goodtime.bruaket.entity.barrel.IBarrelTileEntity;
+import com.goodtime.bruaket.entity.barrel.BarrelTileEntity;
 import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.IBruaketRecipe;
+import com.goodtime.bruaket.recipe.RecipeIngredients;
 import com.goodtime.bruaket.recipe.RecipeList;
 import com.goodtime.bruaket.recipe.RecipeListManager;
+import com.goodtime.bruaket.util.ItemUtils;
+import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.PositionImpl;
@@ -19,16 +22,14 @@ import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityHopper;
-import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelTileEntity, ITickable{
+public class TileEntityBarrel extends BarrelTileEntity {
 
     private Talisman talisman;
     private NonNullList<ItemStack> inventory = NonNullList.withSize(MAX_SIZE, ItemStack.EMPTY);
@@ -37,7 +38,7 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
 
     private long tickedGameTime;
 
-    private ResourceLocation barrel;
+    private final ResourceLocation barrel;
 
     private ItemStack result;
 
@@ -47,7 +48,7 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
 
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        this.inventory = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
+        this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
         if (!this.checkLootAndRead(compound)) {
             ItemStackHelper.loadAllItems(compound, this.inventory);
@@ -55,6 +56,11 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
 
         if (compound.hasKey("CustomName", 8)) {
             this.customName = compound.getString("CustomName");
+        }
+
+        if(compound.hasKey("Talisman")){
+            NBTTagCompound talismanTag = compound.getCompoundTag("Talisman");
+            this.setTalisMan((Talisman) new ItemStack(talismanTag).getItem());
         }
 
         this.transferCooldown = compound.getInteger("TransferCooldown");
@@ -73,10 +79,15 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
             compound.setString("CustomName", this.customName);
         }
 
+        if(this.hasTalisMan()){
+            NBTTagCompound talismanTag = new NBTTagCompound();
+            ItemStack talismanStack = new ItemStack(this.getTalisMan());
+            talismanStack.writeToNBT(talismanTag);
+            compound.setTag("Talisman", talismanTag);
+        }
+
         return compound;
     }
-
-
 
     @Override
     public void update() {
@@ -87,6 +98,7 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
             if (!this.isOnTransferCooldown()) {
                 if(result != null){
                     drop(result,1,false);
+                    result = null;
                 }
                 this.setTransferCooldown(0);
                 this.updateBarrel();
@@ -99,20 +111,17 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
         if (this.world != null && !this.world.isRemote) {
             if (!this.isOnTransferCooldown()) {
                 boolean flag = false;
-
-                //如果漏斗没满，接收投掷物
                 if (!this.isFull()) {
                     flag = BarrelUtil.pullItems(this);
                 }
-
                 if (flag) {
                     if(!this.isEmpty() && this.hasTalisMan()){
                         RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
-
                         if(recipeList != null){
                             IBruaketRecipe recipe = recipeList.matches(talisman, inventory);
                             if(recipe != null){
                                 result = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
+                                consumeIngredients(recipe.getIngredients());
                                 this.setTransferCooldown((int)recipe.getTime());
                             }
                         }
@@ -121,11 +130,24 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
                     return true;
                 }
             }
-
         }
         return false;
     }
 
+    private void consumeIngredients(RecipeIngredients ingredients){
+        for (IIngredient ingredient : ingredients.getIngredients()) {
+            ItemStack itemStack = CraftTweakerMC.getItemStack(ingredient);
+            for (ItemStack itemInBarrel : this.inventory) {
+                if (itemInBarrel.isEmpty()) {
+                    continue;
+                }
+                if (ItemUtils.areStacksEqualIgnoreSize(itemInBarrel, itemStack)) {
+                    itemInBarrel.setCount(itemInBarrel.getCount() - itemStack.getCount());
+                    break;
+                }
+            }
+        }
+    }
 
     //传输指定物品到其他有储存功能的方块
     private boolean transferItemsOut(ItemStack output, int count, boolean needDecrSize) {
@@ -162,8 +184,8 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
         return false;
     }
 
+
     //获取桶底部的方块的库存（inventory），如果没有库存就返回null
-    @Nullable
     private IInventory getInventoryForBarrelTransfer() {
         EnumFacing enumfacing = Barrel.getFacing(this.getBlockMetadata());
         return TileEntityHopper.getInventoryAtPosition(this.getWorld(), this.getXPos() + (double) enumfacing.getFrontOffsetX(), this.getYPos() + (double) enumfacing.getFrontOffsetY(), this.getZPos() + (double) enumfacing.getFrontOffsetZ());
@@ -174,12 +196,12 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
         this.talisman = talisman;
     }
 
-    @Override
+
     public Talisman getTalisMan() {
         return hasTalisMan() ? this.talisman : null;
     }
 
-    @Override
+
     public boolean hasTalisMan() {
         return talisman != null;
     }
@@ -200,6 +222,7 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
                 BehaviorDefaultDispenseItem.doDispense(worldIn, itemstack, 3, EnumFacing.DOWN, new PositionImpl(x, y, z));
             }else {
                 BehaviorDefaultDispenseItem.doDispense(worldIn, decrStackSize(itemstack, count), 3, EnumFacing.DOWN, new PositionImpl(x, y, z));
+                markDirty();
             }
             return true;
         } else{
@@ -241,6 +264,7 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
     @Override
     public void setTransferCooldown(int ticks) {
         this.transferCooldown = ticks;
+
     }
 
     @Override
@@ -271,7 +295,6 @@ public class TileEntityBarrel extends TileEntityLockableLoot implements IBarrelT
 
     //减少格子内指定数量的指定物品
     public ItemStack decrStackSize(ItemStack itemStack, int count) {
-        this.fillWithLoot((EntityPlayer) null);
         return ItemStackHelper.getAndSplit(this.getItems(), indexOf(itemStack), count);
     }
 
