@@ -55,7 +55,6 @@ public class BarrelUtil {
             }
 
             if (result.isEmpty()) {
-                destination.markDirty();
                 flag = true;
                 entity.setDead();
             } else {

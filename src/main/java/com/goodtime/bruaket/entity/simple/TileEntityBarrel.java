@@ -38,9 +38,12 @@ public class TileEntityBarrel extends BarrelTileEntity {
 
     private long tickedGameTime;
 
-    private final ResourceLocation barrel;
+    private ResourceLocation barrel;
 
     private ItemStack result;
+
+    public TileEntityBarrel() {
+    }
 
     public TileEntityBarrel(ResourceLocation barrel) {
         this.barrel = barrel;

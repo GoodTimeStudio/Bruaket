@@ -20,6 +20,9 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      */
     public static final int MAX_SIZE = 9;
 
+    public BarrelTileEntity() {
+    }
+
     /**
      * Get the world of the barrel
      *
