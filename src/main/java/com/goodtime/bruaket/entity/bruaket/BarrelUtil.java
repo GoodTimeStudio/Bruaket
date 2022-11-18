@@ -1,4 +1,4 @@
-package com.goodtime.bruaket.entity.barrel;
+package com.goodtime.bruaket.entity.bruaket;
 
 import com.goodtime.bruaket.items.Talisman;
 import net.minecraft.block.Block;

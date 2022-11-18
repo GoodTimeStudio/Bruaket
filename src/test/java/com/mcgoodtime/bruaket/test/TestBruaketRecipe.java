@@ -67,7 +67,7 @@ public class TestBruaketRecipe {
                 )
         );
 
-        NonNullList<ItemStack> barrelInventory = NonNullList.withSize(10, ItemStack.EMPTY);
+        NonNullList<ItemStack> barrelInventory = NonNullList.withSize(9, ItemStack.EMPTY);
 
         barrelInventory.set(1, new ItemStack(Items.IRON_INGOT, 9));
         assertTrue(recipe.matches(ItemInitializer.ultra_flamma_talisman.getRegistryName(), barrelInventory));

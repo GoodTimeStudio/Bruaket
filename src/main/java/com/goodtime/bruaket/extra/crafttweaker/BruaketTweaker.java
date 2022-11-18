@@ -1,15 +1,15 @@
 package com.goodtime.bruaket.extra.crafttweaker;
 
 import com.goodtime.bruaket.core.Bruaket;
-import com.goodtime.bruaket.recipe.BruaketRecipe;
-import com.goodtime.bruaket.recipe.RecipeIngredients;
-import com.goodtime.bruaket.recipe.RecipeList;
-import com.goodtime.bruaket.recipe.RecipeListManager;
+import com.goodtime.bruaket.recipe.*;
 import crafttweaker.IAction;
 import crafttweaker.annotations.ZenRegister;
 import crafttweaker.api.item.IIngredient;
+import crafttweaker.api.minecraft.CraftTweakerMC;
 import crafttweaker.mc1120.CraftTweaker;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.oredict.OreDictionary;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
@@ -40,13 +40,43 @@ public class BruaketTweaker {
         @Override
         public void apply () {
             BruaketRecipe recipe = new BruaketRecipe(barrel, output, time, new RecipeIngredients(talisman, ingredients));
-            RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
-            if (recipeList == null) {
-                recipeList = new RecipeList();
-                RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
+            boolean useOreDic = false;
+
+            for (int i = 0; i < ingredients.length; i++) {
+                IIngredient handleResult = handleOreDict(ingredients[i]);
+                ingredients[i] = CraftTweakerMC.getIItemStackWildcardSize(CraftTweakerMC.getItemStack(ingredients[i]));
+                if(handleResult != null){
+                    useOreDic = true;
+                    ingredients[i] = handleResult;
+                }
             }
-            recipeList.addRecipe(recipe);
+
+            if(useOreDic){
+                FuzzyRecipeList fuzzyRecipeList = RecipeListManager.INSTANCE.getFuzzyRecipeList(barrel);
+                if(fuzzyRecipeList == null){
+                    fuzzyRecipeList = new FuzzyRecipeList();
+                    RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, fuzzyRecipeList);
+                }
+                fuzzyRecipeList.addRecipe(ingredients, talisman, recipe);
+            } else {
+                RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
+                if (recipeList == null) {
+                    recipeList = new RecipeList();
+                    RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
+                }
+                recipeList.addRecipe(recipe);
+            }
         }
+
+        private IIngredient handleOreDict(IIngredient ingredient){
+            ItemStack itemStack = CraftTweakerMC.getItemStack(ingredient);
+            int[] ids = OreDictionary.getOreIDs(itemStack);
+            if(ids.length != 0){
+                return CraftTweakerMC.getIItemStackWildcardSize(OreDictionary.getOres(OreDictionary.getOreName(ids[0])).get(0));
+            }
+            return null;
+        }
+
 
         @Override
         public String describe () {

@@ -1,8 +1,8 @@
 package com.goodtime.bruaket.blocks;
 
 import com.goodtime.bruaket.core.Bruaket;
-import com.goodtime.bruaket.entity.barrel.BarrelUtil;
-import com.goodtime.bruaket.entity.barrel.BarrelTileEntity;
+import com.goodtime.bruaket.entity.bruaket.BarrelTileEntity;
+import com.goodtime.bruaket.entity.bruaket.BarrelUtil;
 import com.goodtime.bruaket.entity.simple.TileEntityBarrel;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;

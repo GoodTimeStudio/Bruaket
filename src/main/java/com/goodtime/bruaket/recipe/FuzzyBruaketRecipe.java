@@ -10,18 +10,14 @@ import java.util.ArrayList;
  * @author SuHao
  */
 public class FuzzyBruaketRecipe {
+    private final ArrayList<IBruaketRecipe> possibleRecipes = new ArrayList<>();
 
-    private final RecipeIngredients ingredients;
-
-    private final ArrayList<IBruaketRecipe> possibleRecipes;
-
-    public FuzzyBruaketRecipe(RecipeIngredients ingredients, ArrayList<IBruaketRecipe> possibleRecipes) {
-        this.ingredients = ingredients;
-        this.possibleRecipes = possibleRecipes;
+    public FuzzyBruaketRecipe(IBruaketRecipe bruaketRecipe) {
+        this.possibleRecipes.add(bruaketRecipe);
     }
 
-    public RecipeIngredients getIngredients() {
-        return ingredients;
+    public void addRecipe(IBruaketRecipe bruaketRecipe){
+        this.possibleRecipes.add(bruaketRecipe);
     }
 
     public ArrayList<IBruaketRecipe> getPossibleRecipes() {
@@ -30,8 +26,7 @@ public class FuzzyBruaketRecipe {
 
     /**
      * Matches an acceptable recipe from a list of possible recipes
-     * @param barrelInventory item stacks of the barrel inventory. The array length must be 10,
-     *                        and the first element must be the item stack of talisman.
+     * @param barrelInventory item stacks of the barrel inventory. The array length must be 9.
      *                        Elements of this array can be null.
      * @return a @{@link IBruaketRecipe} if there is a match, otherwise null
      */

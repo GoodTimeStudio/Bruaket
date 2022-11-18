@@ -2,13 +2,12 @@ package com.goodtime.bruaket.entity.simple;
 
 
 import com.goodtime.bruaket.blocks.Barrel;
-import com.goodtime.bruaket.entity.barrel.BarrelUtil;
-import com.goodtime.bruaket.entity.barrel.BarrelTileEntity;
+import com.goodtime.bruaket.entity.bruaket.BarrelTileEntity;
+import com.goodtime.bruaket.entity.bruaket.BarrelUtil;
 import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.IBruaketRecipe;
 import com.goodtime.bruaket.recipe.RecipeIngredients;
-import com.goodtime.bruaket.recipe.RecipeList;
-import com.goodtime.bruaket.recipe.RecipeListManager;
+import com.goodtime.bruaket.recipe.RecipeMatcher;
 import com.goodtime.bruaket.util.ItemUtils;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
@@ -26,8 +25,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-
-import javax.annotation.Nullable;
 
 public class TileEntityBarrel extends BarrelTileEntity {
 
@@ -61,6 +58,10 @@ public class TileEntityBarrel extends BarrelTileEntity {
             this.customName = compound.getString("CustomName");
         }
 
+        if(compound.hasKey("Barrel")){
+            this.barrel = new ResourceLocation(compound.getString("Barrel"));
+        }
+
         if(compound.hasKey("Talisman")){
             NBTTagCompound talismanTag = compound.getCompoundTag("Talisman");
             this.setTalisMan((Talisman) new ItemStack(talismanTag).getItem());
@@ -81,6 +82,8 @@ public class TileEntityBarrel extends BarrelTileEntity {
         if (this.hasCustomName()) {
             compound.setString("CustomName", this.customName);
         }
+
+        compound.setString("Barrel", barrel.toString());
 
         if(this.hasTalisMan()){
             NBTTagCompound talismanTag = new NBTTagCompound();
@@ -119,15 +122,11 @@ public class TileEntityBarrel extends BarrelTileEntity {
                 }
                 if (flag) {
                     if(!this.isEmpty() && this.hasTalisMan()){
-                        RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
-                        if(recipeList != null){
-                            IBruaketRecipe recipe = recipeList.matches(talisman, inventory);
-                            if(recipe != null){
-                                result = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
-                                consumeIngredients(recipe.getIngredients());
-                                this.setTransferCooldown((int)recipe.getTime());
-                            }
-                        }
+                       IBruaketRecipe recipe = RecipeMatcher.match(barrel, talisman.getRegistryName(), inventory);
+                       if(recipe != null){
+                           this.result = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
+                           consumeIngredients(recipe.getIngredients());
+                       }
                     }
                     this.markDirty();
                     return true;
@@ -308,7 +307,7 @@ public class TileEntityBarrel extends BarrelTileEntity {
 
     @Override
     public void setInventorySlotContents(int index, ItemStack stack) {
-        this.fillWithLoot((EntityPlayer)null);
+        this.fillWithLoot(null);
         this.getItems().set(index, stack);
 
         if (stack.getCount() > this.getInventoryStackLimit()) {
