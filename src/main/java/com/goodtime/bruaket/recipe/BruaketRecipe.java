@@ -44,7 +44,7 @@ public class BruaketRecipe implements IBruaketRecipe {
     }
 
     @Override
-    public long getTime(){
+    public int getTime(){
         return time;
     }
 
@@ -65,19 +65,16 @@ public class BruaketRecipe implements IBruaketRecipe {
         if (!this.ingredients.getTalisman().equals(talisman)) {
             return false;
         }
-
+        int count = 0;
         for (IIngredient ing : this.getIngredients().getIngredients()) {
             for (ItemStack itemStack : barrelInventory) {
-                if (itemStack.isEmpty()) {
-                    continue;
-                }
-                if (ing.matches(CraftTweakerMC.getIItemStack(itemStack))) {
-                    return ing.getAmount() <= itemStack.getCount();
+                if (itemStack.isEmpty()) continue;
+                if (ing.matches(CraftTweakerMC.getIItemStack(itemStack)) && ing.getAmount() <= itemStack.getCount() ) {
+                    count ++;
                 }
             }
-            return false;
         }
-        return false;
+        return count == this.getIngredients().getIngredients().size();
     }
 
     @Override

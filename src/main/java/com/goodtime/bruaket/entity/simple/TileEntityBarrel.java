@@ -125,6 +125,7 @@ public class TileEntityBarrel extends BarrelTileEntity {
                        IBruaketRecipe recipe = RecipeMatcher.match(barrel, talisman.getRegistryName(), inventory);
                        if(recipe != null){
                            this.result = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
+                           this.setTransferCooldown(recipe.getTime());
                            consumeIngredients(recipe.getIngredients());
                        }
                     }

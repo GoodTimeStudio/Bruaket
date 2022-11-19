@@ -44,5 +44,5 @@ public interface IBruaketRecipe {
      * Get the time needed to craft the item, in ticks
      * @return time in ticks
      */
-    long getTime();
+    int getTime();
 }

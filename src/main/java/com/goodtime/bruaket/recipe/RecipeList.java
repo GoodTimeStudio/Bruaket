@@ -1,15 +1,7 @@
 package com.goodtime.bruaket.recipe;
 
-import com.goodtime.bruaket.entity.bruaket.BarrelTileEntity;
-import com.goodtime.bruaket.items.Talisman;
-import crafttweaker.api.item.IIngredient;
-import crafttweaker.api.minecraft.CraftTweakerMC;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-
 import javax.annotation.Nullable;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class RecipeList  {
 
@@ -22,6 +14,5 @@ public class RecipeList  {
     public IBruaketRecipe matches(RecipeIngredients ingredients) {
         return recipesMap.get(ingredients);
     }
-
 
 }
