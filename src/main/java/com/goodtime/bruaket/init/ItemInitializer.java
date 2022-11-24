@@ -1,6 +1,8 @@
 package com.goodtime.bruaket.init;
 
 import com.goodtime.bruaket.blocks.Barrel;
+import com.goodtime.bruaket.blocks.NetherBarrel;
+import com.goodtime.bruaket.blocks.OrdinaryBarrel;
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.items.Talisman;
 import net.minecraft.item.Item;
@@ -15,6 +17,7 @@ public class ItemInitializer {
     public static Barrel iron_barrel;
     public static Barrel tinker_barrel;
 
+    public static Barrel nether_barrel;
 
     //Item
     public static Item logo;
@@ -40,9 +43,11 @@ public class ItemInitializer {
         bucket = Talisman.getItem("bucket").setCreativeTab(Bruaket.CREATIVE_TAB);
 
         //Barrel
-        wooden_barrel = new Barrel("wooden_barrel", 3.0F);
-        iron_barrel = new Barrel("iron_barrel", 6.0F);
-        tinker_barrel = new Barrel("tinker_barrel", 6.0F);
+        wooden_barrel = new OrdinaryBarrel("wooden_barrel", 3.0F);
+        iron_barrel = new OrdinaryBarrel("iron_barrel", 6.0F);
+        tinker_barrel = new OrdinaryBarrel("tinker_barrel", 6.0F);
+
+        nether_barrel = new NetherBarrel("nether_barrel", 10.0F);
 
         //Talisman
         stone_talisman = new Talisman("stone_talisman");

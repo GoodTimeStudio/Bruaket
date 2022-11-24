@@ -29,7 +29,6 @@ public class BarrelUtil {
         return false;
     }
 
-
     /**
      * Put drop in inventory
      *

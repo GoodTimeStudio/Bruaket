@@ -1,7 +1,7 @@
 package com.mcgoodtime.bruaket.test;
 
 import com.goodtime.bruaket.init.ItemInitializer;
-import com.goodtime.bruaket.recipe.BruaketRecipe;
+import com.goodtime.bruaket.recipe.BruaketOrdinaryRecipe;
 import com.goodtime.bruaket.recipe.RecipeIngredients;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
@@ -19,7 +19,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestBruaketRecipe {
+public class TestBruaketOrdinaryRecipe {
 
     @BeforeAll
     public static void init() {
@@ -28,7 +28,7 @@ public class TestBruaketRecipe {
     }
     @Test
     public void testNormalMatch() {
-        BruaketRecipe recipe = new BruaketRecipe(
+        BruaketOrdinaryRecipe recipe = new BruaketOrdinaryRecipe(
                 Objects.requireNonNull(ItemInitializer.wooden_barrel.getRegistryName()),
                 CraftTweakerMC.getIIngredient(Items.DIAMOND),
                 100,
@@ -55,7 +55,7 @@ public class TestBruaketRecipe {
 
     @Test
     public void testOreDictMatch() {
-        BruaketRecipe recipe = new BruaketRecipe(
+        BruaketOrdinaryRecipe recipe = new BruaketOrdinaryRecipe(
                 Objects.requireNonNull(ItemInitializer.wooden_barrel.getRegistryName()),
                 new MCOreDictEntry("gemDiamond").amount(2),
                 100,

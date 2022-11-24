@@ -2,9 +2,9 @@ package com.mcgoodtime.bruaket.test;
 
 import com.goodtime.bruaket.init.ItemInitializer;
 import com.goodtime.bruaket.recipe.*;
+import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
-import crafttweaker.mc1120.oredict.MCOreDictEntry;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -29,7 +29,7 @@ public class TestRecipeList {
 
     @Test
     public void testRecipeList(){
-        BruaketRecipe recipe = new BruaketRecipe(
+        BruaketOrdinaryRecipe recipe = new BruaketOrdinaryRecipe(
                 Objects.requireNonNull(ItemInitializer.wooden_barrel.getRegistryName()),
                 CraftTweakerMC.getIIngredient(Items.BOAT),
                 100,
@@ -73,7 +73,7 @@ public class TestRecipeList {
                 CraftTweakerMC.getIItemStackWildcardSize(new ItemStack(Items.APPLE, 1))
         };
 
-        BruaketRecipe recipe1 = new BruaketRecipe(
+        BruaketOrdinaryRecipe recipe1 = new BruaketOrdinaryRecipe(
                 Objects.requireNonNull(ItemInitializer.wooden_barrel.getRegistryName()),
                 CraftTweakerMC.getIIngredient(Items.DIAMOND),
                 100,
@@ -83,7 +83,7 @@ public class TestRecipeList {
                 )
         );
 
-        BruaketRecipe recipe2 = new BruaketRecipe(
+        BruaketOrdinaryRecipe recipe2 = new BruaketOrdinaryRecipe(
                 Objects.requireNonNull(ItemInitializer.wooden_barrel.getRegistryName()),
                 CraftTweakerMC.getIIngredient(Items.GOLD_INGOT),
                 100,

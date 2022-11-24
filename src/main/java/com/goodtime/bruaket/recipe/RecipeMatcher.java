@@ -1,5 +1,6 @@
 package com.goodtime.bruaket.recipe;
 
+import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import net.minecraft.item.ItemStack;

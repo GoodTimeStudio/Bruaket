@@ -1,5 +1,6 @@
 package com.goodtime.bruaket.recipe;
 
+import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import net.minecraft.item.ItemStack;
@@ -12,7 +13,7 @@ import javax.annotation.Nonnull;
  * @author SuHao
  * @date 2022/8/8
  */
-public class BruaketRecipe implements IBruaketRecipe {
+public class BruaketOrdinaryRecipe implements IBruaketRecipe {
 
     /**
      * Required Barrel
@@ -31,7 +32,7 @@ public class BruaketRecipe implements IBruaketRecipe {
      */
     private final int time;
 
-    public BruaketRecipe(@Nonnull ResourceLocation barrel, @Nonnull IIngredient result, int time, @Nonnull RecipeIngredients ingredients) {
+    public BruaketOrdinaryRecipe(@Nonnull ResourceLocation barrel, @Nonnull IIngredient result, int time, @Nonnull RecipeIngredients ingredients) {
         this.barrel = barrel;
         this.ingredients = ingredients;
         this.result = result;

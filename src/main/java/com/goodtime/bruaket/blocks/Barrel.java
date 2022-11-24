@@ -3,7 +3,6 @@ package com.goodtime.bruaket.blocks;
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.entity.bruaket.BarrelTileEntity;
 import com.goodtime.bruaket.entity.bruaket.BarrelUtil;
-import com.goodtime.bruaket.entity.simple.TileEntityBarrel;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -28,7 +27,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -38,11 +36,8 @@ import java.util.Objects;
  * @author Java0
  */
 
-public class Barrel extends BlockContainer {
+public abstract class Barrel extends BlockContainer {
 
-    static {
-        GameRegistry.registerTileEntity(TileEntityBarrel.class, new ResourceLocation("bruaket:barrel"));
-    }
 
     String name;
 
@@ -51,8 +46,6 @@ public class Barrel extends BlockContainer {
 
     // ENABLED  方块的自定义属性，描述该方块的开关情况
     public static final PropertyBool ENABLED = PropertyBool.create("enabled");
-
-    private boolean canWork = true;
 
     public Barrel(String registerName, float hardness){
         super(Material.ROCK);
@@ -78,9 +71,7 @@ public class Barrel extends BlockContainer {
 
     private void modelRegister(){
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(Objects.requireNonNull(this.getRegistryName()), "inventory"));
-        ModelLoader.setCustomStateMapper(
-                this, (new StateMap.Builder()).ignore(ENABLED).build()
-        );
+        ModelLoader.setCustomStateMapper(this, (new StateMap.Builder()).ignore(ENABLED).build());
     }
 
     @Override
@@ -110,25 +101,12 @@ public class Barrel extends BlockContainer {
 
     //所使用的TileEntity
     @Override
-    public TileEntity createNewTileEntity(World worldIn, int meta) {
-        return new TileEntityBarrel(this.getRegistryName());
-    }
+    public abstract TileEntity createNewTileEntity(World worldIn, int meta);
 
     //玩家放下方块后所执行的操作（尚待研究）
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-        BarrelTileEntity barrel = (BarrelTileEntity) worldIn.getTileEntity(pos);
-
-        if (stack.hasDisplayName()) {
-            if (barrel != null) {
-//                tileentity.setCustomName(stack.getDisplayName());
-                if(placer instanceof EntityPlayer) {
-//                    tileentity.setOwner(placer.getUniqueID());
-                }
-            }
-        }
-
     }
 
     @Override
@@ -178,6 +156,7 @@ public class Barrel extends BlockContainer {
         return 4;
     }
 
+    /*TODO*/
     //检测红石信号
     @Override
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
@@ -186,12 +165,6 @@ public class Barrel extends BlockContainer {
 
         TileEntity tileEntity = worldIn.getTileEntity(pos);
         if (tileEntity instanceof BarrelTileEntity){
-
-            if (flag && canWork) {
-                canWork = false;
-            } else if (!flag && !canWork) {
-                canWork = true;
-            }
         }
     }
 
@@ -202,23 +175,11 @@ public class Barrel extends BlockContainer {
         return EnumBlockRenderType.MODEL;
     }
 
-    private boolean canOutPower = false;
-
-    public void setCanOutPower(boolean canOutPower){
-        this.canOutPower = canOutPower;
-    }
-
-    @Override
-    public boolean hasComparatorInputOverride(IBlockState state)
-    {
-        return canOutPower;
-    }
-
+    /*TODO*/
     @Override
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos) {
-        int power = Container.calcRedstone(worldIn.getTileEntity(pos));
 
-        return power;
+        return Container.calcRedstone(worldIn.getTileEntity(pos));
     }
 
     @Override
@@ -239,15 +200,6 @@ public class Barrel extends BlockContainer {
         }
 
         return i;
-    }
-
-    public boolean isWorking(){
-        return canWork;
-    }
-
-    public static boolean isEnabled(int meta)
-    {
-        return (meta & 8) != 8;
     }
 
     public static EnumFacing getFacing(int meta)

@@ -52,6 +52,11 @@ public class RecipeIngredients {
             return false;
         }
         RecipeIngredients that = (RecipeIngredients) o;
+
+        if(talisman == null){
+            return ingredients.equals(that.ingredients);
+        }
+
         return talisman.equals(that.talisman) && ingredients.equals(that.ingredients);
     }
 

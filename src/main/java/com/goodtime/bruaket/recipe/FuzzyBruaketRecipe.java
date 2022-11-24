@@ -1,5 +1,6 @@
 package com.goodtime.bruaket.recipe;
 
+import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;

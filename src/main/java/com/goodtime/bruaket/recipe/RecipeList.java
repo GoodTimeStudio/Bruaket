@@ -1,5 +1,7 @@
 package com.goodtime.bruaket.recipe;
 
+import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
+
 import javax.annotation.Nullable;
 import java.util.HashMap;
 

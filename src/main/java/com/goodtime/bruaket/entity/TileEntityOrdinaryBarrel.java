@@ -1,11 +1,11 @@
-package com.goodtime.bruaket.entity.simple;
+package com.goodtime.bruaket.entity;
 
 
 import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.entity.bruaket.BarrelTileEntity;
 import com.goodtime.bruaket.entity.bruaket.BarrelUtil;
 import com.goodtime.bruaket.items.Talisman;
-import com.goodtime.bruaket.recipe.IBruaketRecipe;
+import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
 import com.goodtime.bruaket.recipe.RecipeIngredients;
 import com.goodtime.bruaket.recipe.RecipeMatcher;
 import com.goodtime.bruaket.util.ItemUtils;
@@ -26,23 +26,26 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class TileEntityBarrel extends BarrelTileEntity {
+public class TileEntityOrdinaryBarrel extends BarrelTileEntity {
 
     private Talisman talisman;
+
+    private ResourceLocation barrel;
+
     private NonNullList<ItemStack> inventory = NonNullList.withSize(MAX_SIZE, ItemStack.EMPTY);
 
     private int transferCooldown = -1;
 
     private long tickedGameTime;
 
-    private ResourceLocation barrel;
+    private ItemStack outputResult;
 
-    private ItemStack result;
+    private boolean isWorking;
 
-    public TileEntityBarrel() {
+    public TileEntityOrdinaryBarrel() {
     }
 
-    public TileEntityBarrel(ResourceLocation barrel) {
+    public TileEntityOrdinaryBarrel(ResourceLocation barrel) {
         this.barrel = barrel;
     }
 
@@ -102,37 +105,37 @@ public class TileEntityBarrel extends BarrelTileEntity {
             this.tickedGameTime = this.world.getTotalWorldTime();
 
             if (!this.isOnTransferCooldown()) {
-                if(result != null){
-                    drop(result,1,false);
-                    result = null;
+                if(outputResult != null){
+                    drop(outputResult,1,false);
+                    outputResult = null;
+                    this.isWorking = false;
                 }
                 this.setTransferCooldown(0);
-                this.updateBarrel();
             }
+            this.updateBarrel();
         }
     }
 
     //一定tick之后执行的操作
     protected boolean updateBarrel() {
         if (this.world != null && !this.world.isRemote) {
-            if (!this.isOnTransferCooldown()) {
-                boolean flag = false;
-                if (!this.isFull()) {
-                    flag = BarrelUtil.pullItems(this);
-                }
-                if (flag) {
-                    if(!this.isEmpty() && this.hasTalisMan()){
-                       IBruaketRecipe recipe = RecipeMatcher.match(barrel, talisman.getRegistryName(), inventory);
-                       if(recipe != null){
-                           this.result = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
-                           this.setTransferCooldown(recipe.getTime());
-                           consumeIngredients(recipe.getIngredients());
-                       }
-                    }
-                    this.markDirty();
-                    return true;
-                }
+            if (!this.isFull()) {
+                BarrelUtil.pullItems(this);
             }
+            if (!isWorking && !this.isEmpty()) {
+                if(this.hasTalisMan()){
+                    IBruaketRecipe recipe = RecipeMatcher.match(barrel, talisman.getRegistryName(), inventory);
+                    if(recipe != null){
+                        this.outputResult = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
+                        this.setTransferCooldown(recipe.getTime());
+                        consumeIngredients(recipe.getIngredients());
+                        this.isWorking = true;
+                    }
+                }
+                this.markDirty();
+                return true;
+            }
+
         }
         return false;
     }
