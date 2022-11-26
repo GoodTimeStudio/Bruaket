@@ -5,16 +5,15 @@ import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashSet;
 
 public class BruaketSmeltingRecipe implements IBruaketRecipe {
 
-    private IIngredient ingredient;
+    private final IIngredient ingredient;
 
-    private IIngredient output;
+    private final IIngredient output;
 
     public BruaketSmeltingRecipe(IIngredient ingredient, IIngredient output) {
         this.ingredient = ingredient;
@@ -27,7 +26,7 @@ public class BruaketSmeltingRecipe implements IBruaketRecipe {
     }
 
     @Override
-    public boolean matches(ResourceLocation talisman, NonNullList<ItemStack> barrelInventory) {
+    public boolean matches(ResourceLocation talisman, ItemStack... barrelInventory) {
         int count = 0;
         for (IIngredient ing : this.getIngredients().getIngredients()) {
             for (ItemStack itemStack : barrelInventory) {

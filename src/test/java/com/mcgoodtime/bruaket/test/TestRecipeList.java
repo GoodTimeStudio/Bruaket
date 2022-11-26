@@ -54,7 +54,7 @@ public class TestRecipeList {
         recipeList.addRecipe(recipe);
         RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
 
-        IBruaketRecipe bruaketRecipe = RecipeMatcher.match(barrel,  talisman, barrelInventory);
+        IBruaketRecipe bruaketRecipe = RecipeMatcher.OrdinaryRecipeMatch(barrel,  talisman, barrelInventory);
         assertNotNull(bruaketRecipe);
     }
 
@@ -96,7 +96,7 @@ public class TestRecipeList {
         NonNullList<ItemStack> barrelInventory = NonNullList.withSize(9, ItemStack.EMPTY);
 
         barrelInventory.set(0, new ItemStack(Items.APPLE, 1));
-        barrelInventory.set(1, new ItemStack(Items.COAL, 1));
+        barrelInventory.set(1, new ItemStack(Items.IRON_INGOT, 1));
 
         ResourceLocation barrel = ItemInitializer.wooden_barrel.getRegistryName();
         ResourceLocation talisman = ItemInitializer.stone_talisman.getRegistryName();
@@ -109,7 +109,7 @@ public class TestRecipeList {
         fuzzyRecipeList.addRecipe(ingredients2, talisman, recipe2);
         RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, fuzzyRecipeList);
 
-        IBruaketRecipe bruaketRecipe = RecipeMatcher.match(barrel, talisman, barrelInventory);
+        IBruaketRecipe bruaketRecipe = RecipeMatcher.OrdinaryRecipeMatch(barrel, talisman, barrelInventory);
 
         assertNotNull(bruaketRecipe);
 

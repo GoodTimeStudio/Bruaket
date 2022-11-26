@@ -28,7 +28,14 @@ public class BruaketTweaker {
         CraftTweaker.LATE_ACTIONS.add(new SmeltingRecipe(ingredient, output));
     }
 
+    @ZenMethod
+    public static void addSmeltingRecipe(String barrel, IIngredient ingredient, IIngredient output){
+        CraftTweaker.LATE_ACTIONS.add(new SmeltingRecipe(barrel, ingredient, output));
+    }
+
     private static class SmeltingRecipe implements IAction{
+
+        private final ResourceLocation barrel;
 
         private final IIngredient ingredient;
 
@@ -36,15 +43,20 @@ public class BruaketTweaker {
 
 
         public SmeltingRecipe(IIngredient ingredient, IIngredient output) {
-            this.ingredient = ingredient;
+            this.barrel = ItemInitializer.nether_barrel.getRegistryName();
+            this.ingredient = CraftTweakerMC.getIItemStackWildcardSize(CraftTweakerMC.getItemStack(ingredient)).amount(1);
+            this.output = output;
+        }
+
+        public SmeltingRecipe(String barrel, IIngredient ingredient, IIngredient output) {
+            this.barrel = new ResourceLocation(barrel);
+            this.ingredient = CraftTweakerMC.getIItemStackWildcardSize(CraftTweakerMC.getItemStack(ingredient)).amount(1);
             this.output = output;
         }
 
         @Override
         public void apply() {
             BruaketSmeltingRecipe smeltingRecipe = new BruaketSmeltingRecipe(ingredient, output);
-
-            ResourceLocation barrel = ItemInitializer.nether_barrel.getRegistryName();
 
             IIngredient handleResult = handleOreDict(ingredient);
 
@@ -62,7 +74,6 @@ public class BruaketTweaker {
                     RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
                 }
                 recipeList.addRecipe(smeltingRecipe);
-
             }
         }
 

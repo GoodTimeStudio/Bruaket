@@ -1,6 +1,8 @@
 package com.goodtime.bruaket.recipe;
 
 import crafttweaker.api.item.IIngredient;
+import crafttweaker.api.minecraft.CraftTweakerMC;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Arrays;
@@ -17,6 +19,12 @@ public class RecipeIngredients {
     private final ResourceLocation talisman;
 
     private final HashSet<IIngredient> ingredients;
+
+    public  RecipeIngredients(ResourceLocation talisman, ItemStack itemStack){
+        this.talisman = talisman;
+        this.ingredients = new HashSet<>();
+        this.ingredients.add(CraftTweakerMC.getIItemStackWildcardSize(itemStack));
+    }
 
     public RecipeIngredients(ResourceLocation talisman, HashSet<IIngredient> ingredients) {
         if (ingredients.size() > 9) {

@@ -31,7 +31,7 @@ public class FuzzyBruaketRecipe {
      *                        Elements of this array can be null.
      * @return a @{@link IBruaketRecipe} if there is a match, otherwise null
      */
-    public IBruaketRecipe matches(ResourceLocation talisman, NonNullList<ItemStack> barrelInventory) {
+    public IBruaketRecipe matches(ResourceLocation talisman, ItemStack... barrelInventory) {
         for (IBruaketRecipe recipe : this.possibleRecipes) {
             if (recipe.matches(talisman, barrelInventory)) {
                 return recipe;

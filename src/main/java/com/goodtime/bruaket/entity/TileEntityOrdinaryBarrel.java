@@ -25,6 +25,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 
 public class TileEntityOrdinaryBarrel extends BarrelTileEntity {
 
@@ -49,7 +50,7 @@ public class TileEntityOrdinaryBarrel extends BarrelTileEntity {
         this.barrel = barrel;
     }
 
-    public void readFromNBT(NBTTagCompound compound) {
+    public void readFromNBT(@NotNull NBTTagCompound compound) {
         super.readFromNBT(compound);
         this.inventory = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
@@ -73,7 +74,7 @@ public class TileEntityOrdinaryBarrel extends BarrelTileEntity {
         this.transferCooldown = compound.getInteger("TransferCooldown");
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+    public @NotNull NBTTagCompound writeToNBT(@NotNull NBTTagCompound compound) {
         super.writeToNBT(compound);
 
         if (!this.checkLootAndWrite(compound)) {
@@ -117,14 +118,14 @@ public class TileEntityOrdinaryBarrel extends BarrelTileEntity {
     }
 
     //一定tick之后执行的操作
-    protected boolean updateBarrel() {
+    protected void updateBarrel() {
         if (this.world != null && !this.world.isRemote) {
             if (!this.isFull()) {
                 BarrelUtil.pullItems(this);
             }
             if (!isWorking && !this.isEmpty()) {
                 if(this.hasTalisMan()){
-                    IBruaketRecipe recipe = RecipeMatcher.match(barrel, talisman.getRegistryName(), inventory);
+                    IBruaketRecipe recipe = RecipeMatcher.OrdinaryRecipeMatch(barrel, talisman.getRegistryName(), inventory);
                     if(recipe != null){
                         this.outputResult = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
                         this.setTransferCooldown(recipe.getTime());
@@ -133,11 +134,8 @@ public class TileEntityOrdinaryBarrel extends BarrelTileEntity {
                     }
                 }
                 this.markDirty();
-                return true;
             }
-
         }
-        return false;
     }
 
     private void consumeIngredients(RecipeIngredients ingredients){

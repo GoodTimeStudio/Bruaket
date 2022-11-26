@@ -62,7 +62,7 @@ public class BruaketOrdinaryRecipe implements IBruaketRecipe {
      * @return boolean
      */
     @Override
-    public boolean matches(ResourceLocation talisman, NonNullList<ItemStack> barrelInventory) {
+    public boolean matches(ResourceLocation talisman, ItemStack... barrelInventory) {
         if (!this.ingredients.getTalisman().equals(talisman)) {
             return false;
         }

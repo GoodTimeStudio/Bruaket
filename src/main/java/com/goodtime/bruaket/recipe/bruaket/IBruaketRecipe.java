@@ -27,7 +27,7 @@ public interface IBruaketRecipe {
      *                        Elements of this array can be null.
      * @return true if match
      */
-    boolean matches(ResourceLocation talisman, NonNullList<ItemStack> barrelInventory);
+    boolean matches(ResourceLocation talisman, ItemStack... barrelInventory);
 
     /**
      * Get the registry name of the barrel used to craft this recipe

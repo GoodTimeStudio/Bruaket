@@ -47,10 +47,11 @@ public class TestBruaketOrdinaryRecipe {
 
         // not enough item
         barrelInventory.set(1, new ItemStack(Items.APPLE, 2));
-        assertFalse(recipe.matches(ItemInitializer.fire_talisman.getRegistryName(), barrelInventory));
+
+        assertFalse(recipe.matches(ItemInitializer.fire_talisman.getRegistryName(), barrelInventory.toArray(new ItemStack[0])));
 
         barrelInventory.get(1).setCount(3);
-        assertTrue(recipe.matches(ItemInitializer.fire_talisman.getRegistryName(), barrelInventory));
+        assertTrue(recipe.matches(ItemInitializer.fire_talisman.getRegistryName(), barrelInventory.toArray(new ItemStack[0])));
     }
 
     @Test
@@ -70,6 +71,6 @@ public class TestBruaketOrdinaryRecipe {
         NonNullList<ItemStack> barrelInventory = NonNullList.withSize(9, ItemStack.EMPTY);
 
         barrelInventory.set(1, new ItemStack(Items.IRON_INGOT, 9));
-        assertTrue(recipe.matches(ItemInitializer.ultra_flamma_talisman.getRegistryName(), barrelInventory));
+        assertTrue(recipe.matches(ItemInitializer.ultra_flamma_talisman.getRegistryName(), barrelInventory.toArray(new ItemStack[0])));
     }
 }
