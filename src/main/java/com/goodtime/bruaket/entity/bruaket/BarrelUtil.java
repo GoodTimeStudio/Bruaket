@@ -18,9 +18,6 @@ import java.util.List;
 public class BarrelUtil {
 
     public static boolean pullItems(BarrelTileEntity barrel) {
-       /* Boolean ret = net.minecraftforge.items.VanillaInventoryCodeHooks.extractHook(hopper);
-        if (ret != null) return ret;*/
-
         List<EntityItem> items = TileEntityHopper.getCaptureItems(barrel.getWorld(), barrel.getXPos(), barrel.getYPos(), barrel.getZPos());
         if (!items.isEmpty()) {
             EntityItem entityitem = items.get(0);
@@ -65,8 +62,8 @@ public class BarrelUtil {
     }
 
     public static ItemStack putTalisman(BarrelTileEntity barrel, ItemStack talisman) {
-        if (!barrel.hasTalisMan()) {
-            barrel.setTalisMan((Talisman) talisman.getItem());
+        if (!barrel.hasTalisman()) {
+            barrel.setTalisman((Talisman) talisman.getItem());
             barrel.markDirty();
             return ItemStack.EMPTY;
         } else {
@@ -154,8 +151,8 @@ public class BarrelUtil {
     }
 
     public static void dropTalisman(BarrelTileEntity barrel) {
-        barrel.drop(new ItemStack(barrel.getTalisMan(),1),1, false);
-        barrel.setTalisMan(null);
+        barrel.drop(new ItemStack(barrel.getTalisman(),1),1, false);
+        barrel.setTalisman(null);
     }
 
 }

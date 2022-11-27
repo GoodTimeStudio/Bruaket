@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TestRecipeList {
 
@@ -50,8 +49,13 @@ public class TestRecipeList {
         ResourceLocation barrel = ItemInitializer.wooden_barrel.getRegistryName();
         ResourceLocation talisman = ItemInitializer.stone_talisman.getRegistryName();
 
+        IIngredient[] ingredients = new IIngredient[]{
+                CraftTweakerMC.getIItemStackWildcardSize(new ItemStack(Items.ARROW, 1)).amount(1),
+                CraftTweakerMC.getIItemStackWildcardSize(new ItemStack(Items.APPLE, 1)).amount(1)
+        };
+
         RecipeList recipeList = new RecipeList();
-        recipeList.addRecipe(recipe);
+        recipeList.addRecipe(ingredients, talisman, recipe);
         RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
 
         IBruaketRecipe bruaketRecipe = RecipeMatcher.OrdinaryRecipeMatch(barrel,  talisman, barrelInventory);
@@ -59,7 +63,7 @@ public class TestRecipeList {
     }
 
     @Test
-    public void testFUzzyRecipeList(){
+    public void testFuzzyRecipeList(){
 
         OreDictionary.registerOre("ingotIron", Items.COAL);
 
@@ -122,7 +126,9 @@ public class TestRecipeList {
             ItemStack itemStack = CraftTweakerMC.getItemStack(ingredients[i]);
             int[] ids = OreDictionary.getOreIDs(itemStack);
             if(ids.length != 0){
-                ingredients[i] = CraftTweakerMC.getIItemStackWildcardSize(OreDictionary.getOres(OreDictionary.getOreName(ids[0])).get(0));
+                ingredients[i] = CraftTweakerMC.getIIngredient(OreDictionary.getOres(OreDictionary.getOreName(ids[0])).get(0)).amount(1);
+            }else {
+                ingredients[i] = ingredients[i].amount(1);
             }
         }
     }

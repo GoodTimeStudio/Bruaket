@@ -6,8 +6,6 @@ import com.goodtime.bruaket.recipe.RecipeList;
 import com.goodtime.bruaket.recipe.RecipeListManager;
 import com.goodtime.bruaket.recipe.RecipeMatcher;
 import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
-import crafttweaker.api.item.IIngredient;
-import crafttweaker.api.item.IItemStack;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.init.Items;
@@ -19,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TestBruaketSmeltingRecipe {
 
@@ -46,17 +44,17 @@ public class TestBruaketSmeltingRecipe {
         ResourceLocation barrel = ItemInitializer.nether_barrel.getRegistryName();
 
         RecipeList recipeList = new RecipeList();
-        recipeList.addRecipe(smeltingRecipe);
-        recipeList.addRecipe(smeltingRecipe2);
+        recipeList.addRecipe(CraftTweakerMC.getIIngredient(new ItemStack(Items.BEEF, 1)).amount(1), null, smeltingRecipe);
+        recipeList.addRecipe(CraftTweakerMC.getIIngredient(new ItemStack(Items.APPLE, 1)).amount(1), null, smeltingRecipe2);
+
         RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
 
         ArrayList<IBruaketRecipe> recipes = RecipeMatcher.SmeltingRecipeMatch(barrel, inventory);
 
-        if(!recipes.isEmpty()){
-            recipes.forEach(recipe -> System.out.println(recipe.getRecipeOutput()));
-        }else {
-            System.out.println("操！！！");
-        }
+        assertFalse(recipes.isEmpty());
+
+        recipes.forEach(recipe -> System.out.println(recipe.getRecipeOutput()));
+
 
     }
 

@@ -20,12 +20,13 @@ public class RecipeMatcher {
         ArrayList<IBruaketRecipe> recipes = new ArrayList<>();
 
         for (ItemStack itemStack : barrelInventory) {
-
-            ItemStack handleResult = handleOreDict(itemStack);
+            if(itemStack.isEmpty()) continue;
             RecipeIngredients recipeIngredients;
 
+            ItemStack handleResult = handleOreDict(itemStack);
+
             if(handleResult != null){
-                recipeIngredients = new RecipeIngredients(null, handleResult);
+                recipeIngredients = new RecipeIngredients(null, CraftTweakerMC.getIIngredient(handleResult).amount(1));
                 FuzzyRecipeList fuzzyRecipeList = RecipeListManager.INSTANCE.getFuzzyRecipeList(barrel);
                 if(fuzzyRecipeList != null){
                     FuzzyBruaketRecipe fuzzyRecipe = fuzzyRecipeList.matches(recipeIngredients);
@@ -34,7 +35,7 @@ public class RecipeMatcher {
                     }
                 }
             }else {
-                recipeIngredients = new RecipeIngredients(null, itemStack);
+                recipeIngredients = new RecipeIngredients(null, CraftTweakerMC.getIIngredient(itemStack).amount(1));
                 RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
                 if(recipeList != null){
                     IBruaketRecipe bruaketRecipe = recipeList.matches(recipeIngredients);
@@ -58,9 +59,9 @@ public class RecipeMatcher {
                 ItemStack handleResult = handleOreDict(itemStack);
                 if (handleResult != null) {
                     useOreDic = true;
-                    ingredients.add(CraftTweakerMC.getIItemStackWildcardSize(handleResult));
+                    ingredients.add(CraftTweakerMC.getIIngredient(handleResult).amount(1));
                 } else {
-                    ingredients.add(CraftTweakerMC.getIItemStackWildcardSize(itemStack));
+                    ingredients.add(CraftTweakerMC.getIIngredient(itemStack).amount(1));
                 }
             }
         }
@@ -88,7 +89,6 @@ public class RecipeMatcher {
         }
         return null;
     }
-
 
 
 

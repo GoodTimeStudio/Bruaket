@@ -20,10 +20,10 @@ public class RecipeIngredients {
 
     private final HashSet<IIngredient> ingredients;
 
-    public  RecipeIngredients(ResourceLocation talisman, ItemStack itemStack){
+    public  RecipeIngredients(ResourceLocation talisman, IIngredient ingredient){
         this.talisman = talisman;
         this.ingredients = new HashSet<>();
-        this.ingredients.add(CraftTweakerMC.getIItemStackWildcardSize(itemStack));
+        this.ingredients.add(ingredient);
     }
 
     public RecipeIngredients(ResourceLocation talisman, HashSet<IIngredient> ingredients) {

@@ -44,13 +44,13 @@ public class BruaketTweaker {
 
         public SmeltingRecipe(IIngredient ingredient, IIngredient output) {
             this.barrel = ItemInitializer.nether_barrel.getRegistryName();
-            this.ingredient = CraftTweakerMC.getIItemStackWildcardSize(CraftTweakerMC.getItemStack(ingredient)).amount(1);
+            this.ingredient = ingredient.amount(1);
             this.output = output;
         }
 
         public SmeltingRecipe(String barrel, IIngredient ingredient, IIngredient output) {
             this.barrel = new ResourceLocation(barrel);
-            this.ingredient = CraftTweakerMC.getIItemStackWildcardSize(CraftTweakerMC.getItemStack(ingredient)).amount(1);
+            this.ingredient = ingredient.amount(1);
             this.output = output;
         }
 
@@ -66,14 +66,14 @@ public class BruaketTweaker {
                     fuzzyRecipeList = new FuzzyRecipeList();
                     RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, fuzzyRecipeList);
                 }
-                fuzzyRecipeList.addRecipe(handleResult, smeltingRecipe);
+                fuzzyRecipeList.addRecipe(handleResult.amount(1),null, smeltingRecipe);
             }else {
                 RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
                 if (recipeList == null){
                     recipeList = new RecipeList();
                     RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
                 }
-                recipeList.addRecipe(smeltingRecipe);
+                recipeList.addRecipe(ingredient.amount(1), null, smeltingRecipe);
             }
         }
 
@@ -100,15 +100,18 @@ public class BruaketTweaker {
 
         @Override
         public void apply () {
+            //此时以未被修改的ingredients构建合成
             BruaketOrdinaryRecipe recipe = new BruaketOrdinaryRecipe(barrel, output, time, new RecipeIngredients(talisman, ingredients));
             boolean useOreDic = false;
 
+            //处理ingredients，统一设置wildcardSize为true，amount为1，方便匹配
             for (int i = 0; i < ingredients.length; i++) {
                 IIngredient handleResult = handleOreDict(ingredients[i]);
-                ingredients[i] = CraftTweakerMC.getIItemStackWildcardSize(CraftTweakerMC.getItemStack(ingredients[i]));
                 if(handleResult != null){
                     useOreDic = true;
-                    ingredients[i] = handleResult;
+                    ingredients[i] = handleResult.amount(1);
+                }else {
+                    ingredients[i] = ingredients[i].amount(1);
                 }
             }
 
@@ -125,7 +128,7 @@ public class BruaketTweaker {
                     recipeList = new RecipeList();
                     RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
                 }
-                recipeList.addRecipe(recipe);
+                recipeList.addRecipe(ingredients, talisman, recipe);
             }
         }
 
@@ -139,7 +142,7 @@ public class BruaketTweaker {
         ItemStack itemStack = CraftTweakerMC.getItemStack(ingredient);
         int[] ids = OreDictionary.getOreIDs(itemStack);
         if(ids.length != 0){
-            return CraftTweakerMC.getIItemStackWildcardSize(OreDictionary.getOres(OreDictionary.getOreName(ids[0])).get(0));
+            return CraftTweakerMC.getIIngredient(OreDictionary.getOres(OreDictionary.getOreName(ids[0])).get(0));
         }
         return null;
     }
