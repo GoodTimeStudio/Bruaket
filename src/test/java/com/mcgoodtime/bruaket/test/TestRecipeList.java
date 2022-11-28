@@ -27,42 +27,6 @@ public class TestRecipeList {
     }
 
     @Test
-    public void testRecipeList(){
-        BruaketOrdinaryRecipe recipe = new BruaketOrdinaryRecipe(
-                Objects.requireNonNull(ItemInitializer.wooden_barrel.getRegistryName()),
-                CraftTweakerMC.getIIngredient(Items.BOAT),
-                100,
-                new RecipeIngredients(
-                        ItemInitializer.stone_talisman.getRegistryName(),
-                        new IIngredient[] {
-                                CraftTweakerMC.getIItemStackWildcardSize(new ItemStack(Items.ARROW, 1)),
-                                CraftTweakerMC.getIItemStackWildcardSize(new ItemStack(Items.APPLE, 1))
-                        }
-                )
-        );
-
-        NonNullList<ItemStack> barrelInventory = NonNullList.withSize(9, ItemStack.EMPTY);
-
-        barrelInventory.set(0, new ItemStack(Items.ARROW, 1));
-        barrelInventory.set(1, new ItemStack(Items.APPLE, 1));
-
-        ResourceLocation barrel = ItemInitializer.wooden_barrel.getRegistryName();
-        ResourceLocation talisman = ItemInitializer.stone_talisman.getRegistryName();
-
-        IIngredient[] ingredients = new IIngredient[]{
-                CraftTweakerMC.getIItemStackWildcardSize(new ItemStack(Items.ARROW, 1)).amount(1),
-                CraftTweakerMC.getIItemStackWildcardSize(new ItemStack(Items.APPLE, 1)).amount(1)
-        };
-
-        RecipeList recipeList = new RecipeList();
-        recipeList.addRecipe(ingredients, talisman, recipe);
-        RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
-
-        IBruaketRecipe bruaketRecipe = RecipeMatcher.OrdinaryRecipeMatch(barrel,  talisman, barrelInventory);
-        assertNotNull(bruaketRecipe);
-    }
-
-    @Test
     public void testFuzzyRecipeList(){
 
         OreDictionary.registerOre("ingotIron", Items.COAL);
@@ -99,8 +63,6 @@ public class TestRecipeList {
 
         NonNullList<ItemStack> barrelInventory = NonNullList.withSize(9, ItemStack.EMPTY);
 
-        barrelInventory.set(0, new ItemStack(Items.APPLE, 1));
-        barrelInventory.set(1, new ItemStack(Items.IRON_INGOT, 1));
 
         ResourceLocation barrel = ItemInitializer.wooden_barrel.getRegistryName();
         ResourceLocation talisman = ItemInitializer.stone_talisman.getRegistryName();
@@ -113,12 +75,23 @@ public class TestRecipeList {
         fuzzyRecipeList.addRecipe(ingredients2, talisman, recipe2);
         RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, fuzzyRecipeList);
 
+        barrelInventory.set(0, new ItemStack(Items.APPLE, 1));
+        barrelInventory.set(1, new ItemStack(Items.IRON_INGOT, 1));
+
         IBruaketRecipe bruaketRecipe = RecipeMatcher.OrdinaryRecipeMatch(barrel, talisman, barrelInventory);
 
         assertNotNull(bruaketRecipe);
 
         System.out.println(bruaketRecipe.getRecipeOutput());
 
+        barrelInventory.set(0, new ItemStack(Items.APPLE, 1));
+        barrelInventory.set(1, new ItemStack(Items.COAL, 1));
+
+        bruaketRecipe = RecipeMatcher.OrdinaryRecipeMatch(barrel, talisman, barrelInventory);
+
+        assertNotNull(bruaketRecipe);
+
+        System.out.println(bruaketRecipe.getRecipeOutput());
     }
 
     private void handleIngredient(IIngredient[] ingredients){

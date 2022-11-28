@@ -3,7 +3,6 @@ package com.goodtime.bruaket.recipe.bruaket;
 import com.goodtime.bruaket.recipe.RecipeIngredients;
 import crafttweaker.api.item.IIngredient;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 /**

@@ -57,24 +57,13 @@ public class BruaketTweaker {
         @Override
         public void apply() {
             BruaketSmeltingRecipe smeltingRecipe = new BruaketSmeltingRecipe(ingredient, output);
-
             IIngredient handleResult = handleOreDict(ingredient);
-
-            if(handleResult != null){
-                FuzzyRecipeList fuzzyRecipeList = RecipeListManager.INSTANCE.getFuzzyRecipeList(barrel);
-                if(fuzzyRecipeList == null){
-                    fuzzyRecipeList = new FuzzyRecipeList();
-                    RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, fuzzyRecipeList);
-                }
-                fuzzyRecipeList.addRecipe(handleResult.amount(1),null, smeltingRecipe);
-            }else {
-                RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
-                if (recipeList == null){
-                    recipeList = new RecipeList();
-                    RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
-                }
-                recipeList.addRecipe(ingredient.amount(1), null, smeltingRecipe);
+            FuzzyRecipeList fuzzyRecipeList = RecipeListManager.INSTANCE.getFuzzyRecipeList(barrel);
+            if(fuzzyRecipeList == null){
+                fuzzyRecipeList = new FuzzyRecipeList();
+                RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, fuzzyRecipeList);
             }
+            fuzzyRecipeList.addRecipe(handleResult.amount(1),null, smeltingRecipe);
         }
 
         @Override
@@ -100,36 +89,16 @@ public class BruaketTweaker {
 
         @Override
         public void apply () {
-            //此时以未被修改的ingredients构建合成
             BruaketOrdinaryRecipe recipe = new BruaketOrdinaryRecipe(barrel, output, time, new RecipeIngredients(talisman, ingredients));
-            boolean useOreDic = false;
-
-            //处理ingredients，统一设置wildcardSize为true，amount为1，方便匹配
             for (int i = 0; i < ingredients.length; i++) {
-                IIngredient handleResult = handleOreDict(ingredients[i]);
-                if(handleResult != null){
-                    useOreDic = true;
-                    ingredients[i] = handleResult.amount(1);
-                }else {
-                    ingredients[i] = ingredients[i].amount(1);
-                }
+                ingredients[i] =handleOreDict(ingredients[i]);
             }
-
-            if(useOreDic){
-                FuzzyRecipeList fuzzyRecipeList = RecipeListManager.INSTANCE.getFuzzyRecipeList(barrel);
-                if(fuzzyRecipeList == null){
-                    fuzzyRecipeList = new FuzzyRecipeList();
-                    RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, fuzzyRecipeList);
-                }
-                fuzzyRecipeList.addRecipe(ingredients, talisman, recipe);
-            } else {
-                RecipeList recipeList = RecipeListManager.INSTANCE.getRecipeList(barrel);
-                if (recipeList == null) {
-                    recipeList = new RecipeList();
-                    RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
-                }
-                recipeList.addRecipe(ingredients, talisman, recipe);
+            FuzzyRecipeList fuzzyRecipeList = RecipeListManager.INSTANCE.getFuzzyRecipeList(barrel);
+            if(fuzzyRecipeList == null){
+                fuzzyRecipeList = new FuzzyRecipeList();
+                RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, fuzzyRecipeList);
             }
+            fuzzyRecipeList.addRecipe(ingredients, talisman, recipe);
         }
 
         @Override
@@ -144,7 +113,7 @@ public class BruaketTweaker {
         if(ids.length != 0){
             return CraftTweakerMC.getIIngredient(OreDictionary.getOres(OreDictionary.getOreName(ids[0])).get(0));
         }
-        return null;
+        return ingredient.amount(1);
     }
 
 }

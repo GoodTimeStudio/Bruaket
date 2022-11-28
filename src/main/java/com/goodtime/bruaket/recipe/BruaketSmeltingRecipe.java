@@ -27,16 +27,8 @@ public class BruaketSmeltingRecipe implements IBruaketRecipe {
 
     @Override
     public boolean matches(ResourceLocation talisman, ItemStack... barrelInventory) {
-        int count = 0;
-        for (IIngredient ing : this.getIngredients().getIngredients()) {
-            for (ItemStack itemStack : barrelInventory) {
-                if (itemStack.isEmpty()) continue;
-                if (ing.matches(CraftTweakerMC.getIItemStack(itemStack)) && ing.getAmount() <= itemStack.getCount() ) {
-                    count ++;
-                }
-            }
-        }
-        return count == this.getIngredients().getIngredients().size();
+        ItemStack itemStack = barrelInventory[0];
+        return ingredient.matches(CraftTweakerMC.getIItemStack(itemStack)) && ingredient.getAmount() <= itemStack.getCount();
     }
 
     @Override

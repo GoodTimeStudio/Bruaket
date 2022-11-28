@@ -2,7 +2,7 @@ package com.mcgoodtime.bruaket.test;
 
 import com.goodtime.bruaket.init.ItemInitializer;
 import com.goodtime.bruaket.recipe.BruaketSmeltingRecipe;
-import com.goodtime.bruaket.recipe.RecipeList;
+import com.goodtime.bruaket.recipe.FuzzyRecipeList;
 import com.goodtime.bruaket.recipe.RecipeListManager;
 import com.goodtime.bruaket.recipe.RecipeMatcher;
 import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
@@ -43,11 +43,11 @@ public class TestBruaketSmeltingRecipe {
 
         ResourceLocation barrel = ItemInitializer.nether_barrel.getRegistryName();
 
-        RecipeList recipeList = new RecipeList();
-        recipeList.addRecipe(CraftTweakerMC.getIIngredient(new ItemStack(Items.BEEF, 1)).amount(1), null, smeltingRecipe);
-        recipeList.addRecipe(CraftTweakerMC.getIIngredient(new ItemStack(Items.APPLE, 1)).amount(1), null, smeltingRecipe2);
+        FuzzyRecipeList recipeList = new FuzzyRecipeList();
+        recipeList.addRecipe(CraftTweakerMC.getIIngredient(new ItemStack(Items.BEEF,1)).amount(1), null, smeltingRecipe);
+        recipeList.addRecipe(CraftTweakerMC.getIIngredient(new ItemStack(Items.APPLE,1)).amount(1), null, smeltingRecipe2);
 
-        RecipeListManager.INSTANCE.putRecipeList(barrel, recipeList);
+        RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, recipeList);
 
         ArrayList<IBruaketRecipe> recipes = RecipeMatcher.SmeltingRecipeMatch(barrel, inventory);
 

@@ -13,15 +13,15 @@ public class FuzzyRecipeList {
 
     private final HashMap<RecipeIngredients, FuzzyBruaketRecipe> fuzzyRecipesMap = new HashMap<>();
 
-    public void addRecipe(IIngredient ingredient, ResourceLocation talisman, BruaketSmeltingRecipe smeltingRecipe){
+    public void addRecipe(IIngredient ingredient, ResourceLocation talisman, IBruaketRecipe bruaketRecipe){
         HashSet<IIngredient> smeltingIngredient = new HashSet<>();
         smeltingIngredient.add(ingredient);
         RecipeIngredients recipeIngredients = new RecipeIngredients(talisman, smeltingIngredient);
 
         if(fuzzyRecipesMap.containsKey(recipeIngredients)){
-            fuzzyRecipesMap.get(recipeIngredients).addRecipe(smeltingRecipe);
+            fuzzyRecipesMap.get(recipeIngredients).addRecipe(bruaketRecipe);
         }else {
-            fuzzyRecipesMap.put(recipeIngredients, new FuzzyBruaketRecipe(smeltingRecipe));
+            fuzzyRecipesMap.put(recipeIngredients, new FuzzyBruaketRecipe(bruaketRecipe));
         }
 
     }

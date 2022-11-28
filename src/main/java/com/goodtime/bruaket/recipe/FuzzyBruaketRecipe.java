@@ -2,7 +2,6 @@ package com.goodtime.bruaket.recipe;
 
 import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
@@ -21,8 +20,8 @@ public class FuzzyBruaketRecipe {
         this.possibleRecipes.add(bruaketRecipe);
     }
 
-    public ArrayList<IBruaketRecipe> getPossibleRecipes() {
-        return possibleRecipes;
+    public IBruaketRecipe getPossibleRecipe(int index) {
+        return possibleRecipes.get(index);
     }
 
     /**
@@ -39,4 +38,9 @@ public class FuzzyBruaketRecipe {
         }
         return null;
     }
+
+    public int getPossibleRecipesCount(){
+        return possibleRecipes.size();
+    }
+
 }

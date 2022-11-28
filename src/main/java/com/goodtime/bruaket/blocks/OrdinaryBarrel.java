@@ -2,7 +2,7 @@ package com.goodtime.bruaket.blocks;
 
 import com.goodtime.bruaket.entity.TileEntityOrdinaryBarrel;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
