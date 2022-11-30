@@ -1,7 +1,7 @@
 package com.goodtime.bruaket.blocks;
 
 import com.goodtime.bruaket.core.Bruaket;
-import com.goodtime.bruaket.entity.bruaket.BarrelTileEntity;
+import com.goodtime.bruaket.entity.bruaket.IBarrelTile;
 import com.goodtime.bruaket.entity.bruaket.BarrelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -116,11 +116,11 @@ public abstract class Barrel extends BlockContainer {
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (!worldIn.isRemote) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
-            if (tileentity instanceof BarrelTileEntity) {
+            if (tileentity instanceof IBarrelTile) {
                 if (playerIn.isSneaking()) {
-                    BarrelUtil.dropAllItems((BarrelTileEntity) tileentity);
+                    BarrelUtil.dropAllItems((IBarrelTile) tileentity);
                 } else {
-                    BarrelUtil.dropLastItem((BarrelTileEntity) tileentity);
+                    BarrelUtil.dropLastItem((IBarrelTile) tileentity);
                 }
             }
         }
@@ -131,8 +131,8 @@ public abstract class Barrel extends BlockContainer {
     public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn){
         if (!worldIn.isRemote) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
-            if(tileentity instanceof BarrelTileEntity){
-                BarrelUtil.dropTalisman((BarrelTileEntity) tileentity);
+            if(tileentity instanceof IBarrelTile){
+                BarrelUtil.dropTalisman((IBarrelTile) tileentity);
             }
         }
     }
@@ -141,8 +141,8 @@ public abstract class Barrel extends BlockContainer {
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
         TileEntity tileentity = worldIn.getTileEntity(pos);
 
-        if (tileentity instanceof BarrelTileEntity) {
-            BarrelTileEntity barrel = (BarrelTileEntity) tileentity;
+        if (tileentity instanceof IBarrelTile) {
+            IBarrelTile barrel = (IBarrelTile) tileentity;
             if(!barrel.isEmpty()){
                 BarrelUtil.dropTalisman(barrel);
                 InventoryHelper.dropInventoryItems(worldIn, pos, barrel);
@@ -167,7 +167,7 @@ public abstract class Barrel extends BlockContainer {
         boolean flag = worldIn.isBlockPowered(pos) || worldIn.isBlockPowered(pos.up());
 
         TileEntity tileEntity = worldIn.getTileEntity(pos);
-        if (tileEntity instanceof BarrelTileEntity){
+        if (tileEntity instanceof IBarrelTile){
         }
     }
 

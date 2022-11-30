@@ -8,11 +8,11 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityHopper;
-import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * A abstract class  for all barrel
@@ -20,24 +20,19 @@ import org.jetbrains.annotations.NotNull;
  * @author Java0
  * @date 2022/11/07
  */
-public abstract class BarrelTileEntity extends TileEntityLockableLoot implements IInventory, ITickable {
+public interface IBarrelTile extends IInventory {
 
     /**
      * Max inventory size
      */
     public static final int MAX_SIZE = 9;
 
-    public BarrelTileEntity() {
-    }
-
     /**
      * Get the world of the barrel
      *
      * @return {@link World}
      */
-    public World getWorld(){
-        return this.world;
-    }
+    World getWorld();
 
     /**
      * Get barrel x pos
@@ -45,9 +40,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      * @return double
      */
 
-    public double getXPos() {
-        return (double)this.pos.getX() + 0.5D;
-    }
+    double getXPos();
 
 
     /**
@@ -55,27 +48,23 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      *
      * @return double
      */
-    public double getYPos() {
-        return (double)this.pos.getY() + 0.5D;
-    }
+    double getYPos();
 
     /**
      * Get barrel z pos
      *
      * @return double
      */
-    public double getZPos() {
-        return (double)this.pos.getZ() + 0.5D;
-    }
+    double getZPos();
 
     /**
      * Return true if barrel can export recipe result
      *
      * @return boolean
      */
-    public abstract boolean mayOutput();
+    boolean mayOutput();
 
-    public abstract long getTickedGameTime();
+    long getTickedGameTime();
 
 
     /**
@@ -106,15 +95,28 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      *
      * @param talisman Barrel`s talisman
      */
-    public abstract void setTalisman(Talisman talisman);
+    void setTalisman(Talisman talisman);
 
     /**
      * Get barrel`s talisman
      *
      * @return {@link Talisman}
      */
-    public abstract Talisman getTalisman();
+    Talisman getTalisman();
 
+    /**
+     * Return block metadata
+     *
+     * @return int
+     */
+    int getBlockMetadata();
+
+    /**
+     * Return barrel inventory
+     *
+     * @return {@link List}<{@link ItemStack}>
+     */
+    List<ItemStack> getItems();
 
     /**
      * Drop designated item stack from barrel inventory or drop a new item stack not from barrel inventory
@@ -124,9 +126,9 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      * @param needDecrSize Whether to drop from bucket
      * @return boolean
      */
-    public boolean drop(ItemStack itemstack, int count, boolean needDecrSize) {
+    default boolean drop(ItemStack itemstack, int count, boolean needDecrSize) {
 
-        World worldIn = this.world;
+        World worldIn = this.getWorld();
         double x = this.getXPos();
         double y = this.getYPos() - 1;
         double z = this.getZPos();
@@ -153,7 +155,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      * @param needDecrSize Whether to drop from bucket
      * @return boolean
      */
-    public boolean transferItemsOut(ItemStack output, int count, boolean needDecrSize) {
+    default boolean transferItemsOut(ItemStack output, int count, boolean needDecrSize) {
         IInventory iinventory = this.getInventoryForBarrelTransfer();
 
         if (iinventory == null) {
@@ -192,8 +194,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      * @param stack item stack
      */
     @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
-        this.fillWithLoot(null);
+    default void setInventorySlotContents(int index, @NotNull ItemStack stack) {
         this.getItems().set(index, stack);
 
         if (stack.getCount() > this.getInventoryStackLimit()) {
@@ -207,7 +208,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      *
      * @param index inventory index
      */
-    public @NotNull ItemStack removeStackFromSlot(int index) {
+    default @NotNull ItemStack removeStackFromSlot(int index) {
         return ItemStackHelper.getAndRemove(this.getItems(), index);
     }
 
@@ -218,7 +219,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      * @return int
      */
     @Override
-    public int getInventoryStackLimit() {
+    default int getInventoryStackLimit() {
         return 64;
     }
 
@@ -227,7 +228,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      *
      * @return {@link IInventory}
      */
-    private IInventory getInventoryForBarrelTransfer() {
+    default IInventory getInventoryForBarrelTransfer() {
         EnumFacing enumfacing = Barrel.getFacing(this.getBlockMetadata());
         return TileEntityHopper.getInventoryAtPosition(this.getWorld(), this.getXPos() + (double) enumfacing.getFrontOffsetX(), this.getYPos() + (double) enumfacing.getFrontOffsetY(), this.getZPos() + (double) enumfacing.getFrontOffsetZ());
     }
@@ -240,7 +241,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      * @param count     amount
      * @return {@link ItemStack}
      */
-    private ItemStack decrStackSize(ItemStack itemStack, int count) {
+    default ItemStack decrStackSize(ItemStack itemStack, int count) {
         return ItemStackHelper.getAndSplit(this.getItems(), indexOf(itemStack), count);
     }
 
@@ -251,7 +252,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      * @param itemStack item stack
      * @return int
      */
-    private int indexOf(ItemStack itemStack) {
+    default int indexOf(ItemStack itemStack) {
         return this.getItems().indexOf(itemStack);
     }
 
@@ -261,7 +262,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      *
      * @return boolean
      */
-    public boolean isEmpty() {
+    default boolean isEmpty() {
         for (ItemStack itemstack : this.getItems()) {
             if (!itemstack.isEmpty()) {
                 return false;
@@ -275,7 +276,7 @@ public abstract class BarrelTileEntity extends TileEntityLockableLoot implements
      *
      * @return boolean
      */
-    public boolean isFull() {
+    default boolean isFull() {
         for (ItemStack itemstack : this.getItems()) {
             if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize()) {
                 return false;

@@ -1,7 +1,7 @@
 package com.goodtime.bruaket.entity;
 
 
-import com.goodtime.bruaket.entity.bruaket.BarrelTileEntity;
+import com.goodtime.bruaket.entity.bruaket.IBarrelTile;
 import com.goodtime.bruaket.entity.bruaket.BarrelUtil;
 import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.RecipeIngredients;
@@ -16,11 +16,14 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntityLockableLoot;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-public class TileEntityOrdinaryBarrel extends BarrelTileEntity {
+public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements IBarrelTile, ITickable {
 
     private Talisman talisman;
 
@@ -179,7 +182,7 @@ public class TileEntityOrdinaryBarrel extends BarrelTileEntity {
     }
 
     @Override
-    protected @NotNull NonNullList<ItemStack> getItems() {
+    public @NotNull NonNullList<ItemStack> getItems() {
         return inventory;
     }
 
@@ -192,6 +195,31 @@ public class TileEntityOrdinaryBarrel extends BarrelTileEntity {
     public int getSizeInventory() {
         return this.inventory.size();
     }
+
+    public int getBlockMetadata() {
+        return super.getBlockMetadata();
+    }
+
+
+    public @NotNull World getWorld(){
+        return this.world;
+    }
+
+    public double getXPos() {
+        return (double)this.pos.getX() + 0.5D;
+    }
+
+
+    public double getYPos() {
+        return (double)this.pos.getY() + 0.5D;
+    }
+
+
+    public double getZPos() {
+        return (double)this.pos.getZ() + 0.5D;
+    }
+
+
 
     @Override
     public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn) {

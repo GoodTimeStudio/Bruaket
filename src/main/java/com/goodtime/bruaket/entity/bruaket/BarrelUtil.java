@@ -17,7 +17,7 @@ import java.util.List;
 
 public class BarrelUtil {
 
-    public static boolean pullItems(BarrelTileEntity barrel) {
+    public static boolean pullItems(IBarrelTile barrel) {
         List<EntityItem> items = TileEntityHopper.getCaptureItems(barrel.getWorld(), barrel.getXPos(), barrel.getYPos(), barrel.getZPos());
         if (!items.isEmpty()) {
             EntityItem entityitem = items.get(0);
@@ -34,7 +34,7 @@ public class BarrelUtil {
      * @param entity      实体
      * @return boolean
      */
-    public static boolean putDropInInventoryAllSlots(IInventory source, BarrelTileEntity destination, EntityItem entity) {
+    public static boolean putDropInInventoryAllSlots(IInventory source, IBarrelTile destination, EntityItem entity) {
         boolean flag = false;
 
         if (entity == null) {
@@ -61,7 +61,7 @@ public class BarrelUtil {
         }
     }
 
-    public static ItemStack putTalisman(BarrelTileEntity barrel, ItemStack talisman) {
+    public static ItemStack putTalisman(IBarrelTile barrel, ItemStack talisman) {
         if (!barrel.hasTalisman()) {
             barrel.setTalisman((Talisman) talisman.getItem());
             barrel.markDirty();
@@ -99,7 +99,7 @@ public class BarrelUtil {
     }
 
     //桶下方的方块是否为空气
-    public static boolean bottomIsAir(BarrelTileEntity barrel) {
+    public static boolean bottomIsAir(IBarrelTile barrel) {
         World worldIn = barrel.getWorld();
         int x = MathHelper.floor(barrel.getXPos());
         int y = MathHelper.floor(barrel.getYPos()) - 1;
@@ -112,7 +112,7 @@ public class BarrelUtil {
     }
 
     //抛出所有储存的物品(除了符文)
-    public static void dropAllItems(BarrelTileEntity barrel) {
+    public static void dropAllItems(IBarrelTile barrel) {
         if(!barrel.isEmpty()){
             for (int i = 0; i < barrel.getSizeInventory(); i++) {
                 ItemStack itemStack = barrel.getStackInSlot(i);
@@ -126,7 +126,7 @@ public class BarrelUtil {
     }
 
     //获取最后一个放入的物品
-    private static ItemStack getLastPutItem(BarrelTileEntity barrel) {
+    private static ItemStack getLastPutItem(IBarrelTile barrel) {
         ItemStack itemStack = null;
         for (int i = barrel.getSizeInventory() - 1; i >= 0; i--) {
             itemStack = barrel.getStackInSlot(i);
@@ -139,7 +139,7 @@ public class BarrelUtil {
 
 
     //抛出最后放入的物品
-    public static void dropLastItem(BarrelTileEntity barrel) {
+    public static void dropLastItem(IBarrelTile barrel) {
         if(!barrel.isEmpty()){
             ItemStack itemStack = getLastPutItem(barrel);
             if (itemStack != null) {
@@ -150,7 +150,7 @@ public class BarrelUtil {
         }
     }
 
-    public static void dropTalisman(BarrelTileEntity barrel) {
+    public static void dropTalisman(IBarrelTile barrel) {
         barrel.drop(new ItemStack(barrel.getTalisman(),1),1, false);
         barrel.setTalisman(null);
     }
