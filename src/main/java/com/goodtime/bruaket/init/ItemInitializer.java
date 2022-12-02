@@ -7,6 +7,7 @@ import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.items.Talisman;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -48,6 +49,10 @@ public class ItemInitializer {
         tinker_barrel = new OrdinaryBarrel("tinker_barrel", 6.0F);
 
         nether_barrel = new NetherBarrel("nether_barrel", 10.0F);
+
+        if(Loader.isModLoaded("CoFH Core")){
+            nether_barrel = new NetherBarrel("nether_barrel", 10.0F);
+        }
 
         //Talisman
         stone_talisman = new Talisman("stone_talisman");

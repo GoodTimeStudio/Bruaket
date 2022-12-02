@@ -96,6 +96,13 @@ public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements 
     }
 
     @Override
+    public void markDirty(){
+        super.markDirty();
+        matchingRequired = true;
+    }
+
+
+    @Override
     public void update() {
         if (this.world != null && !this.world.isRemote) {
             --this.craftCooldown;
@@ -125,11 +132,11 @@ public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements 
                         this.outputResult = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
                         this.setCraftCooldown(recipe.getTime());
                         consumeIngredients(recipe.getIngredients());
+                        markDirty();
                     }else{
                         matchingRequired = false;
                     }
                 }
-                this.markDirty();
             }
         }
     }
@@ -147,6 +154,15 @@ public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements 
                 }
             }
         }
+    }
+
+    @Override
+    public void setInventorySlotContents(int index, @NotNull ItemStack stack) {
+        this.getItems().set(index, stack);
+        if (stack.getCount() > this.getInventoryStackLimit()) {
+            stack.setCount(this.getInventoryStackLimit());
+        }
+        this.markDirty();
     }
 
     @Override
@@ -218,7 +234,6 @@ public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements 
     public double getZPos() {
         return (double)this.pos.getZ() + 0.5D;
     }
-
 
 
     @Override

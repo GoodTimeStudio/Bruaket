@@ -146,7 +146,6 @@ public interface IBarrelTile extends IInventory {
         }
     }
 
-
     /**
      * Transfer recipe result or item in barrel to block`s inventory under barrel
      *
@@ -184,23 +183,6 @@ public interface IBarrelTile extends IInventory {
             this.setInventorySlotContents(indexOf(output), backups);
         }
         return false;
-    }
-
-
-    /**
-     * Set inventory contents
-     *
-     * @param index inventory index
-     * @param stack item stack
-     */
-    @Override
-    default void setInventorySlotContents(int index, @NotNull ItemStack stack) {
-        this.getItems().set(index, stack);
-
-        if (stack.getCount() > this.getInventoryStackLimit()) {
-            stack.setCount(this.getInventoryStackLimit());
-        }
-        this.markDirty();
     }
 
     /**
