@@ -2,8 +2,12 @@ package com.goodtime.bruaket.entity.bruaket;
 
 import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.items.Talisman;
+import com.goodtime.bruaket.recipe.RecipeIngredients;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.PositionImpl;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
@@ -25,7 +29,7 @@ public interface IBarrelTile extends IInventory {
     /**
      * Max inventory size
      */
-    public static final int MAX_SIZE = 9;
+    int MAX_SIZE = 9;
 
     /**
      * Get the world of the barrel
@@ -90,6 +94,8 @@ public interface IBarrelTile extends IInventory {
      */
     public abstract boolean hasTalisman();
 
+    ItemStack putTalisman(Talisman talisman);
+
     /**
      * Set barrel`s talisman
      *
@@ -117,6 +123,14 @@ public interface IBarrelTile extends IInventory {
      * @return {@link List}<{@link ItemStack}>
      */
     List<ItemStack> getItems();
+
+    /**
+     * 消耗材料
+     *
+     * @param ingredients 成分
+     */
+    void consumeIngredients(RecipeIngredients ingredients);
+
 
     /**
      * Drop designated item stack from barrel inventory or drop a new item stack not from barrel inventory
@@ -266,7 +280,5 @@ public interface IBarrelTile extends IInventory {
         }
         return true;
     }
-
-
 
 }

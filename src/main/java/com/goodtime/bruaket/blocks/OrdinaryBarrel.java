@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class OrdinaryBarrel extends Barrel{
 
     static {
-        GameRegistry.registerTileEntity(TileEntityOrdinaryBarrel.class, new ResourceLocation("bruaket:barrel"));
+        GameRegistry.registerTileEntity(TileEntityOrdinaryBarrel.class, new ResourceLocation("bruaket:ordinary_barrel"));
     }
 
     public OrdinaryBarrel(String registerName, float hardness) {

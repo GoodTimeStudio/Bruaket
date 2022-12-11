@@ -107,7 +107,6 @@ public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements 
         if (this.world != null && !this.world.isRemote) {
             --this.craftCooldown;
             this.tickedGameTime = this.world.getTotalWorldTime();
-
             if (this.isIdle()) {
                 if(this.mayOutput()){
                     drop(outputResult,1,false);
@@ -128,7 +127,6 @@ public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements 
                 if(this.hasTalisman()){
                     IBruaketRecipe recipe = RecipeMatcher.OrdinaryRecipeMatch(barrel, talisman.getRegistryName(), inventory);
                     if(recipe != null){
-                        matchingRequired = true;
                         this.outputResult = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
                         this.setCraftCooldown(recipe.getTime());
                         consumeIngredients(recipe.getIngredients());
@@ -141,7 +139,8 @@ public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements 
         }
     }
 
-    private void consumeIngredients(RecipeIngredients ingredients){
+    @Override
+    public void consumeIngredients(RecipeIngredients ingredients){
         for (IIngredient ingredient : ingredients.getIngredients()) {
             ItemStack itemStack = CraftTweakerMC.getItemStack(ingredient);
             for (ItemStack itemInBarrel : this.inventory) {
@@ -165,10 +164,21 @@ public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements 
         this.markDirty();
     }
 
+    public ItemStack putTalisman(Talisman talisman) {
+        if (!this.hasTalisman()) {
+            this.setTalisman(talisman);
+            this.markDirty();
+            return ItemStack.EMPTY;
+        } else {
+            return new ItemStack(talisman);
+        }
+    }
+
     @Override
-    public void setTalisman(Talisman talisman){
+    public void setTalisman(Talisman talisman) {
         this.talisman = talisman;
     }
+
 
     @Override
     public Talisman getTalisman() {
@@ -234,7 +244,6 @@ public class TileEntityOrdinaryBarrel extends TileEntityLockableLoot implements 
     public double getZPos() {
         return (double)this.pos.getZ() + 0.5D;
     }
-
 
     @Override
     public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn) {

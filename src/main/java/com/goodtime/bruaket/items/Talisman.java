@@ -6,6 +6,8 @@ import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
+import java.util.Objects;
+
 import static com.goodtime.bruaket.core.Bruaket.MODID;
 
 public class Talisman extends Item {
@@ -19,7 +21,7 @@ public class Talisman extends Item {
     }
 
     public static void modelRegister(Item talisman){
-        ModelResourceLocation model = new ModelResourceLocation(talisman.getRegistryName(), "inventory");
+        ModelResourceLocation model = new ModelResourceLocation(Objects.requireNonNull(talisman.getRegistryName()), "inventory");
         ModelLoader.setCustomModelResourceLocation(talisman, 0, model);
     }
 
@@ -32,6 +34,5 @@ public class Talisman extends Item {
 
         return item;
     }
-
 
 }

@@ -45,7 +45,7 @@ public class BarrelUtil {
             ItemStack result;
 
             if (drop.getItem() instanceof Talisman) {
-                result = putTalisman(destination, drop);
+                result = destination.putTalisman((Talisman)drop.getItem());
             } else {
                 result = TileEntityHopper.putStackInInventoryAllSlots(source, destination, drop, null);
             }
@@ -58,16 +58,6 @@ public class BarrelUtil {
             }
 
             return flag;
-        }
-    }
-
-    public static ItemStack putTalisman(IBarrelTile barrel, ItemStack talisman) {
-        if (!barrel.hasTalisman()) {
-            barrel.setTalisman((Talisman) talisman.getItem());
-            barrel.markDirty();
-            return ItemStack.EMPTY;
-        } else {
-            return talisman;
         }
     }
 

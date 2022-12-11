@@ -89,8 +89,8 @@ dependencies {
 
     compileOnly fg.deobf("mezz.jei:jei_1.12.2:4.16.1.302:api")
 
-    compileOnly fg.deobf("cofh:CoFHCore:1.12.2-4.6.3.27:universal")
-    compileOnly fg.deobf("cofh:RedstoneFlux:1.12-2.1.0.7:universal")
+    implementation fg.deobf("cofh:CoFHCore:1.12.2-4.6.3.27:universal")
+    implementation fg.deobf("cofh:RedstoneFlux:1.12-2.1.0.7:universal")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
     // You may put jars on which you depend on in ./libs or you may define them like so..

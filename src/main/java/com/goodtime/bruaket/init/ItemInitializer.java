@@ -4,6 +4,7 @@ import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.blocks.NetherBarrel;
 import com.goodtime.bruaket.blocks.OrdinaryBarrel;
 import com.goodtime.bruaket.core.Bruaket;
+import com.goodtime.bruaket.items.FlammaTalisman;
 import com.goodtime.bruaket.items.Talisman;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
@@ -50,18 +51,21 @@ public class ItemInitializer {
 
         nether_barrel = new NetherBarrel("nether_barrel", 10.0F);
 
-        if(Loader.isModLoaded("CoFH Core")){
+        boolean load = Loader.isModLoaded("CoFH Core");
+
+        if(load){
             nether_barrel = new NetherBarrel("nether_barrel", 10.0F);
         }
 
         //Talisman
         stone_talisman = new Talisman("stone_talisman");
-        fire_talisman = new Talisman("fire_talisman");
         wood_talisman = new Talisman("wood_talisman");
         iron_talisman = new Talisman("iron_talisman");
         water_talisman = new Talisman("water_talisman");
-        ultra_flamma_talisman = new Talisman("ultra_flamma_talisman");
-        maxima_flamma_talisman = new Talisman("maxima_flamma_talisman");
+
+        fire_talisman = new FlammaTalisman("fire_talisman",1,1);
+        ultra_flamma_talisman = new FlammaTalisman("ultra_flamma_talisman",3,8);
+        maxima_flamma_talisman = new FlammaTalisman("maxima_flamma_talisman",9,32);
     }
 
 }
