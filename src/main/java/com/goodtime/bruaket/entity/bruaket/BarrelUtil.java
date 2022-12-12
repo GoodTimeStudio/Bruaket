@@ -35,7 +35,6 @@ public class BarrelUtil {
      * @return boolean
      */
     public static boolean putDropInInventoryAllSlots(IInventory source, IBarrelTile destination, EntityItem entity) {
-        boolean flag = false;
 
         if (entity == null) {
             return false;
@@ -46,18 +45,19 @@ public class BarrelUtil {
 
             if (drop.getItem() instanceof Talisman) {
                 result = destination.putTalisman((Talisman)drop.getItem());
+            } else if(destination.getItems() == null){
+                return false;
             } else {
                 result = TileEntityHopper.putStackInInventoryAllSlots(source, destination, drop, null);
             }
 
             if (result.isEmpty()) {
-                flag = true;
                 entity.setDead();
+                return true;
             } else {
                 entity.setItem(result);
+                return false;
             }
-
-            return flag;
         }
     }
 

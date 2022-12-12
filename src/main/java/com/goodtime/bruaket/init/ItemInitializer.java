@@ -51,12 +51,6 @@ public class ItemInitializer {
 
         nether_barrel = new NetherBarrel("nether_barrel", 10.0F);
 
-        boolean load = Loader.isModLoaded("CoFH Core");
-
-        if(load){
-            nether_barrel = new NetherBarrel("nether_barrel", 10.0F);
-        }
-
         //Talisman
         stone_talisman = new Talisman("stone_talisman");
         wood_talisman = new Talisman("wood_talisman");

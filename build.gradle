@@ -89,7 +89,6 @@ dependencies {
 
     compileOnly fg.deobf("mezz.jei:jei_1.12.2:4.16.1.302:api")
 
-    implementation fg.deobf("cofh:CoFHCore:1.12.2-4.6.3.27:universal")
     implementation fg.deobf("cofh:RedstoneFlux:1.12-2.1.0.7:universal")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")

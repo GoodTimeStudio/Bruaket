@@ -1,6 +1,5 @@
 package com.goodtime.bruaket.entity;
 
-import cofh.core.util.core.EnergyConfig;
 import cofh.redstoneflux.impl.EnergyStorage;
 import com.goodtime.bruaket.entity.bruaket.BarrelUtil;
 import com.goodtime.bruaket.entity.bruaket.IBarrelTile;
@@ -39,8 +38,6 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
 
     private int craftCooldown = -1;
 
-    EnergyConfig energyConfig = new EnergyConfig();
-
     EnergyStorage energyStorage;
 
 
@@ -49,7 +46,7 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
 
     public TileEntityNetherBarrel(ResourceLocation barrel) {
         this.barrel = barrel;
-        energyStorage = new EnergyStorage(energyConfig.maxEnergy, energyConfig.maxPower * 4);
+        energyStorage = new EnergyStorage(0, 0);
     }
 
     @Override
@@ -70,9 +67,12 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
 
     protected void updateBarrel() {
         if (this.world != null && !this.world.isRemote) {
-            if (!this.isFull()) {
+            if(this.getItems() == null ){
+                BarrelUtil.pullItems(this);
+            }else if (!this.isFull()) {
                 matchingRequired = BarrelUtil.pullItems(this) || matchingRequired;
             }
+
             if(this.hasTalisman()){
                 if (matchingRequired && this.isIdle() && !this.isEmpty()) {
                     IBruaketRecipe recipe = RecipeMatcher.OrdinaryRecipeMatch(barrel, talisman.getRegistryName(), inventory);
@@ -89,16 +89,6 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
         }
     }
 
-    public int calcEnergy() {
-
-        if (energyStorage.getEnergyStored() >= energyConfig.maxPowerLevel) {
-            return energyConfig.maxPower;
-        }
-        if (energyStorage.getEnergyStored() < energyConfig.minPowerLevel) {
-            return Math.min(energyConfig.minPower, energyStorage.getEnergyStored());
-        }
-        return energyStorage.getEnergyStored() / energyConfig.energyRamp;
-    }
 
     @Override
     public boolean mayOutput() {
@@ -145,6 +135,7 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
     public void setTalisman(Talisman talisman) {
         if(talisman == null){
             this.talisman = null;
+            this.inventory = null;
         }else {
             FlammaTalisman fTalisman = (FlammaTalisman) talisman;
             this.talisman = fTalisman;

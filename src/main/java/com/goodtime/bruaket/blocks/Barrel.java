@@ -143,7 +143,7 @@ public abstract class Barrel extends BlockContainer {
 
         if (tileentity instanceof IBarrelTile) {
             IBarrelTile barrel = (IBarrelTile) tileentity;
-            if(!barrel.isEmpty()){
+            if(barrel.getItems() != null && !barrel.isEmpty()){
                 BarrelUtil.dropTalisman(barrel);
                 InventoryHelper.dropInventoryItems(worldIn, pos, barrel);
                 worldIn.updateComparatorOutputLevel(pos, this);
