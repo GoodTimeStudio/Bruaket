@@ -1,5 +1,6 @@
 package com.goodtime.bruaket.recipe;
 
+import com.goodtime.bruaket.entity.bruaket.IBarrelTile;
 import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
 import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
@@ -7,13 +8,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.oredict.OreDictionary;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
 public class RecipeMatcher {
 
-    public static ArrayList<IBruaketRecipe> SmeltingRecipeMatch(ResourceLocation barrel, NonNullList<ItemStack> barrelInventory){
+    public static @NotNull ArrayList<IBruaketRecipe> SmeltingRecipeMatch(IBarrelTile tile, ResourceLocation barrel, NonNullList<ItemStack> barrelInventory){
         ArrayList<IBruaketRecipe> recipes = new ArrayList<>();
 
         for (ItemStack itemStack : barrelInventory) {
@@ -28,9 +30,11 @@ public class RecipeMatcher {
 
             FuzzyBruaketRecipe fuzzyRecipe = fuzzyRecipeList.matches(recipeIngredients);
 
-            if(fuzzyRecipe == null) continue;
+            if(fuzzyRecipe == null) {
+                tile.drop(itemStack, itemStack.getCount(), true);
+            }
 
-            if(fuzzyRecipe.getPossibleRecipesCount()==1){
+            if(fuzzyRecipe.getPossibleRecipesCount() == 1){
                 recipes.add(fuzzyRecipe.getPossibleRecipe(0));
             }else {
                 IBruaketRecipe recipe = fuzzyRecipe.matches(null, itemStack);
@@ -49,7 +53,7 @@ public class RecipeMatcher {
         HashSet<IIngredient> ingredients = new HashSet<>();
 
         for (ItemStack itemStack : barrelInventory) {
-            if(itemStack.isEmpty())continue;
+            if(itemStack.isEmpty()) continue;
             ItemStack handleResult = handleOreDict(itemStack);
             ingredients.add(CraftTweakerMC.getIIngredient(handleResult).amount(1));
         }

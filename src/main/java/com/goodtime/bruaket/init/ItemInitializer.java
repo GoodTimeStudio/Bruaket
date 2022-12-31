@@ -8,7 +8,6 @@ import com.goodtime.bruaket.items.FlammaTalisman;
 import com.goodtime.bruaket.items.Talisman;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -57,9 +56,9 @@ public class ItemInitializer {
         iron_talisman = new Talisman("iron_talisman");
         water_talisman = new Talisman("water_talisman");
 
-        fire_talisman = new FlammaTalisman("fire_talisman",1,1);
-        ultra_flamma_talisman = new FlammaTalisman("ultra_flamma_talisman",3,8);
-        maxima_flamma_talisman = new FlammaTalisman("maxima_flamma_talisman",9,32);
+        fire_talisman = new FlammaTalisman("fire_talisman",1,1, 200,5);
+        ultra_flamma_talisman = new FlammaTalisman("ultra_flamma_talisman",3,8, 180, 60);
+        maxima_flamma_talisman = new FlammaTalisman("maxima_flamma_talisman",9,32, 130, 760);
     }
 
 }

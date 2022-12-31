@@ -1,25 +1,19 @@
 package com.goodtime.bruaket.entity.bruaket;
 
-import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.items.Talisman;
 import com.goodtime.bruaket.recipe.RecipeIngredients;
-import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
-import net.minecraft.dispenser.PositionImpl;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityHopper;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 /**
- * A abstract class  for all barrel
+ * An interface for all barrel
  *
  * @author Java0
  * @date 2022/11/07
@@ -61,39 +55,47 @@ public interface IBarrelTile extends IInventory {
      */
     double getZPos();
 
+
     /**
-     * Return true if barrel can export recipe result
+     * Return block metadata
      *
-     * @return boolean
+     * @return int
      */
-    boolean mayOutput();
+    int getBlockMetadata();
 
     long getTickedGameTime();
 
+    void processTick();
 
     /**
      * Set the time required for the barrel to complete the current recipe
      *
      * @param ticks required time
      */
-    public abstract void setCraftCooldown(int ticks);
+    void setCraftCooldown(int ticks);
 
+    int getCraftCooldown();
 
     /**
      * Return true if barrel is not working
      *
      * @return boolean
      */
-    public abstract boolean isIdle();
-
+    boolean isIdle();
 
     /**
      * Return if barrel has talisman
      *
      * @return boolean
      */
-    public abstract boolean hasTalisman();
+    boolean hasTalisman();
 
+    /**
+     * Executed when item dropped into the bucket is talisman
+     *
+     * @param talisman 护身符
+     * @return {@link ItemStack}
+     */
     ItemStack putTalisman(Talisman talisman);
 
     /**
@@ -111,25 +113,39 @@ public interface IBarrelTile extends IInventory {
     Talisman getTalisman();
 
     /**
-     * Return block metadata
-     *
-     * @return int
-     */
-    int getBlockMetadata();
-
-    /**
      * Return barrel inventory
      *
      * @return {@link List}<{@link ItemStack}>
      */
     List<ItemStack> getItems();
 
+    boolean matchingRequired();
+
+    void setMatchingRequired(boolean required);
+
+
+    void setItems(NonNullList<ItemStack> inventory);
+
+    String getBarrel();
+
+    void setBarrel(ResourceLocation barrel);
+
+    boolean pullItems();
+
+    boolean putDropInInventoryAllSlots(IInventory source, EntityItem entity);
+
+    void dropAllItems();
+
+    void dropLastItem();
+
+    void dropTalisman();
+
     /**
-     * 消耗材料
+     * Return true if barrel can export recipe result
      *
-     * @param ingredients 成分
+     * @return boolean
      */
-    void consumeIngredients(RecipeIngredients ingredients);
+    boolean mayOutput();
 
 
     /**
@@ -140,25 +156,7 @@ public interface IBarrelTile extends IInventory {
      * @param needDecrSize Whether to drop from bucket
      * @return boolean
      */
-    default boolean drop(ItemStack itemstack, int count, boolean needDecrSize) {
-
-        World worldIn = this.getWorld();
-        double x = this.getXPos();
-        double y = this.getYPos() - 1;
-        double z = this.getZPos();
-
-        if (BarrelUtil.bottomIsAir(this)) {
-            if(!needDecrSize){
-                BehaviorDefaultDispenseItem.doDispense(worldIn, itemstack, 3, EnumFacing.DOWN, new PositionImpl(x, y, z));
-            }else {
-                BehaviorDefaultDispenseItem.doDispense(worldIn, decrStackSize(itemstack, count), 3, EnumFacing.DOWN, new PositionImpl(x, y, z));
-                markDirty();
-            }
-            return true;
-        } else{
-            return transferItemsOut(itemstack, count, needDecrSize);
-        }
-    }
+    boolean drop(ItemStack itemstack, int count, boolean needDecrSize);
 
     /**
      * Transfer recipe result or item in barrel to block`s inventory under barrel
@@ -168,45 +166,14 @@ public interface IBarrelTile extends IInventory {
      * @param needDecrSize Whether to drop from bucket
      * @return boolean
      */
-    default boolean transferItemsOut(ItemStack output, int count, boolean needDecrSize) {
-        IInventory iinventory = this.getInventoryForBarrelTransfer();
-
-        if (iinventory == null) {
-            return false;
-        }
-
-        EnumFacing enumfacing = Barrel.getFacing(this.getBlockMetadata()).getOpposite();
-
-        if (BarrelUtil.isInventoryFull(iinventory, enumfacing)) {
-            return false;
-        }
-
-        if (!needDecrSize) {
-            ItemStack itemStack = TileEntityHopper.putStackInInventoryAllSlots(this, iinventory, output, enumfacing);
-            if (itemStack.isEmpty()) {
-                iinventory.markDirty();
-                return true;
-            }
-        } else {
-            ItemStack backups = output.copy();
-            ItemStack itemStack = TileEntityHopper.putStackInInventoryAllSlots(this, iinventory, this.decrStackSize(output, count), enumfacing);
-            if (itemStack.isEmpty()) {
-                iinventory.markDirty();
-                return true;
-            }
-            this.setInventorySlotContents(indexOf(output), backups);
-        }
-        return false;
-    }
+    boolean transferItemsOut(ItemStack output, int count, boolean needDecrSize);
 
     /**
      * Remove item from inventory
      *
      * @param index inventory index
      */
-    default @NotNull ItemStack removeStackFromSlot(int index) {
-        return ItemStackHelper.getAndRemove(this.getItems(), index);
-    }
+    @NotNull ItemStack removeStackFromSlot(int index) ;
 
 
     /**
@@ -215,19 +182,15 @@ public interface IBarrelTile extends IInventory {
      * @return int
      */
     @Override
-    default int getInventoryStackLimit() {
-        return 64;
-    }
+    int getInventoryStackLimit();
+
 
     /**
      * Get block`s inventory under barrel
      *
      * @return {@link IInventory}
      */
-    default IInventory getInventoryForBarrelTransfer() {
-        EnumFacing enumfacing = Barrel.getFacing(this.getBlockMetadata());
-        return TileEntityHopper.getInventoryAtPosition(this.getWorld(), this.getXPos() + (double) enumfacing.getFrontOffsetX(), this.getYPos() + (double) enumfacing.getFrontOffsetY(), this.getZPos() + (double) enumfacing.getFrontOffsetZ());
-    }
+    IInventory getInventoryForBarrelTransfer();
 
 
     /**
@@ -237,9 +200,7 @@ public interface IBarrelTile extends IInventory {
      * @param count     amount
      * @return {@link ItemStack}
      */
-    default ItemStack decrStackSize(ItemStack itemStack, int count) {
-        return ItemStackHelper.getAndSplit(this.getItems(), indexOf(itemStack), count);
-    }
+    ItemStack decrStackSize(ItemStack itemStack, int count);
 
 
     /**
@@ -248,9 +209,7 @@ public interface IBarrelTile extends IInventory {
      * @param itemStack item stack
      * @return int
      */
-    default int indexOf(ItemStack itemStack) {
-        return this.getItems().indexOf(itemStack);
-    }
+    int indexOf(ItemStack itemStack);
 
 
     /**
@@ -258,27 +217,13 @@ public interface IBarrelTile extends IInventory {
      *
      * @return boolean
      */
-    default boolean isEmpty() {
-        for (ItemStack itemstack : this.getItems()) {
-            if (!itemstack.isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
+    boolean isEmpty();
 
     /**
      * Return true if the count of material in barrel equals stack limit
      *
      * @return boolean
      */
-    default boolean isFull() {
-        for (ItemStack itemstack : this.getItems()) {
-            if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize()) {
-                return false;
-            }
-        }
-        return true;
-    }
+    boolean isFull();
 
 }

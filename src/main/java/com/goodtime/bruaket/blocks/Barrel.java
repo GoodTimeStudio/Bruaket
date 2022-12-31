@@ -2,7 +2,6 @@ package com.goodtime.bruaket.blocks;
 
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.entity.bruaket.IBarrelTile;
-import com.goodtime.bruaket.entity.bruaket.BarrelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -118,9 +117,9 @@ public abstract class Barrel extends BlockContainer {
             TileEntity tileentity = worldIn.getTileEntity(pos);
             if (tileentity instanceof IBarrelTile) {
                 if (playerIn.isSneaking()) {
-                    BarrelUtil.dropAllItems((IBarrelTile) tileentity);
+                    ((IBarrelTile) tileentity).dropAllItems();
                 } else {
-                    BarrelUtil.dropLastItem((IBarrelTile) tileentity);
+                    ((IBarrelTile) tileentity).dropLastItem();
                 }
             }
         }
@@ -132,7 +131,7 @@ public abstract class Barrel extends BlockContainer {
         if (!worldIn.isRemote) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
             if(tileentity instanceof IBarrelTile){
-                BarrelUtil.dropTalisman((IBarrelTile) tileentity);
+                ((IBarrelTile)tileentity).dropTalisman();
             }
         }
     }
@@ -144,7 +143,7 @@ public abstract class Barrel extends BlockContainer {
         if (tileentity instanceof IBarrelTile) {
             IBarrelTile barrel = (IBarrelTile) tileentity;
             if(barrel.getItems() != null && !barrel.isEmpty()){
-                BarrelUtil.dropTalisman(barrel);
+                barrel.dropTalisman();
                 InventoryHelper.dropInventoryItems(worldIn, pos, barrel);
                 worldIn.updateComparatorOutputLevel(pos, this);
             }

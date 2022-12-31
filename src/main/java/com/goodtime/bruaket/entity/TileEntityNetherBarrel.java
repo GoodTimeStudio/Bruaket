@@ -1,26 +1,27 @@
 package com.goodtime.bruaket.entity;
 
-import cofh.redstoneflux.impl.EnergyStorage;
-import com.goodtime.bruaket.entity.bruaket.BarrelUtil;
-import com.goodtime.bruaket.entity.bruaket.IBarrelTile;
+
+import com.goodtime.bruaket.energy.BarrelEnergyStorage;
+import com.goodtime.bruaket.entity.bruaket.PoweredBarrel;
+import com.goodtime.bruaket.entity.utils.BarrelUtil;
 import com.goodtime.bruaket.items.FlammaTalisman;
 import com.goodtime.bruaket.items.Talisman;
-import com.goodtime.bruaket.recipe.RecipeIngredients;
 import com.goodtime.bruaket.recipe.RecipeMatcher;
 import com.goodtime.bruaket.recipe.bruaket.IBruaketRecipe;
+import crafttweaker.api.item.IIngredient;
 import crafttweaker.api.minecraft.CraftTweakerMC;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityLockableLoot;
-import net.minecraft.util.ITickable;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IBarrelTile, ITickable {
+import java.util.ArrayList;
+
+public class TileEntityNetherBarrel extends PoweredBarrel {
 
     private FlammaTalisman talisman;
 
@@ -32,34 +33,85 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
 
     private long tickedGameTime;
 
-    private ItemStack outputResult;
+    private final ArrayList<ItemStack> outputResults = new ArrayList<>();
 
     public boolean matchingRequired = true;
 
-    private int craftCooldown = -1;
+    private int craftCooldown;
 
-    EnergyStorage energyStorage;
+    private int waitingTime;
 
-
-    public TileEntityNetherBarrel() {
-    }
+    public TileEntityNetherBarrel() {}
 
     public TileEntityNetherBarrel(ResourceLocation barrel) {
         this.barrel = barrel;
-        energyStorage = new EnergyStorage(0, 0);
     }
+
+    public @NotNull NBTTagCompound writeToNBT(@NotNull NBTTagCompound compound) {
+        super.writeToNBT(compound);
+
+        if (this.inventory != null && !this.checkLootAndWrite(compound)) {
+            ItemStackHelper.saveAllItems(compound, this.getItems());
+        }
+
+        compound.setInteger("CraftCooldown", this.getCraftCooldown());
+
+        if (this.hasCustomName()) {
+            compound.setString("CustomName", this.customName);
+        }
+
+        compound.setString("Barrel", this.getBarrel());
+
+        if(this.hasTalisman()){
+            NBTTagCompound talismanTag = new NBTTagCompound();
+            ItemStack talismanStack = new ItemStack(this.talisman);
+            talismanStack.writeToNBT(talismanTag);
+            compound.setTag("FTalisman", talismanTag);
+        }
+
+        return compound;
+    }
+
+    public void readFromNBT(@NotNull NBTTagCompound compound) {
+        super.readFromNBT(compound);
+
+        if(compound.hasKey("FTalisman")){
+            NBTTagCompound talismanTag = compound.getCompoundTag("FTalisman");
+            FlammaTalisman fTalisman = (FlammaTalisman) new ItemStack(talismanTag).getItem();
+            this.setTalisman(fTalisman);
+            this.inventory = NonNullList.withSize(fTalisman.getSmeltingSlot(), ItemStack.EMPTY);
+        }
+
+        if (!this.checkLootAndRead(compound)) {
+            ItemStackHelper.loadAllItems(compound, this.getItems());
+        }
+
+        if (compound.hasKey("CustomName", 8)) {
+            this.customName = compound.getString("CustomName");
+        }
+
+        if(compound.hasKey("Barrel")){
+            this.setBarrel(new ResourceLocation(compound.getString("Barrel")));
+        }
+
+        this.setCraftCooldown(compound.getInteger("CraftCooldown"));
+    }
+
 
     @Override
     public void update() {
         if (this.world != null && !this.world.isRemote) {
-            --this.craftCooldown;
+            processTick();
             this.tickedGameTime = this.world.getTotalWorldTime();
             if (this.isIdle()) {
                 if(this.mayOutput()){
-                    drop(outputResult,1,false);
-                    outputResult = null;
+                    for (int i = 0; i < this.outputResults.size(); i++) {
+                        ItemStack outputResult = outputResults.get(i);
+                        drop(outputResult,outputResult.getCount(),false);
+                        outputResults.remove(i);
+                        i=i-1;
+                    }
                 }
-                this.setCraftCooldown(0);
             }
             this.updateBarrel();
         }
@@ -68,18 +120,17 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
     protected void updateBarrel() {
         if (this.world != null && !this.world.isRemote) {
             if(this.getItems() == null ){
-                BarrelUtil.pullItems(this);
+                this.pullItems();
             }else if (!this.isFull()) {
-                matchingRequired = BarrelUtil.pullItems(this) || matchingRequired;
+                matchingRequired = processWaitingTime(this.pullItems()) || matchingRequired;
             }
 
             if(this.hasTalisman()){
                 if (matchingRequired && this.isIdle() && !this.isEmpty()) {
-                    IBruaketRecipe recipe = RecipeMatcher.OrdinaryRecipeMatch(barrel, talisman.getRegistryName(), inventory);
-                    if(recipe != null){
-                        this.outputResult = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
-                        this.setCraftCooldown(recipe.getTime());
-                        consumeIngredients(recipe.getIngredients());
+                    ArrayList<IBruaketRecipe> matchedRecipes = RecipeMatcher.SmeltingRecipeMatch(this, barrel, inventory);
+                    if(!matchedRecipes.isEmpty()){
+                        this.setCraftCooldown(this.talisman.getSmeltTime());
+                        consumeIngredients(matchedRecipes);
                         markDirty();
                     }else{
                         matchingRequired = false;
@@ -89,10 +140,57 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
         }
     }
 
+    private boolean processWaitingTime(boolean pullResult){
+        if(waitingTime > 0){
+            this.setMatchingRequired(false);
+            --this.waitingTime;
+            return false;
+        }else if(this.isEmpty() && pullResult){
+            this.waitingTime = 20;
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    @Override
+    public void processTick() {
+        if(this.craftCooldown > 0 && this.waitingTime <= 0){
+            --craftCooldown;
+            this.energyStorage.modifyEnergyStored(-this.talisman.getSmeltWaste());
+        }
+    }
+
+
+    public void consumeIngredients(ArrayList<IBruaketRecipe> recipes) {
+        int smeltCount = 0;
+
+        int maxSmeltingCount = this.talisman.getMaxSmeltingCount();
+        for (IBruaketRecipe recipe : recipes) {
+
+            if(smeltCount == maxSmeltingCount) break;
+
+            IIngredient ingredient = recipe.getIngredients().getIngredients().iterator().next();
+            ItemStack smeltingIngredient = CraftTweakerMC.getItemStack(ingredient);
+            ItemStack smeltingResult = CraftTweakerMC.getItemStack(recipe.getRecipeOutput());
+
+            for (int i = 0; i < this.inventory.size(); i++) {
+                ItemStack itemInBarrel = inventory.get(i);
+                if (itemInBarrel.isEmpty()) continue;
+                if (BarrelUtil.areStacksEqualIgnoreSize(itemInBarrel, smeltingIngredient)) {
+                    int count = ItemStackHelper.getAndSplit(this.getItems(), i, maxSmeltingCount).getCount();
+                    smeltingResult.setCount(count);
+                    outputResults.add(smeltingResult);
+                    smeltCount += count;
+                    break;
+                }
+            }
+        }
+    }
 
     @Override
     public boolean mayOutput() {
-        return false;
+        return !this.outputResults.isEmpty();
     }
 
     @Override
@@ -101,18 +199,13 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
     }
 
     @Override
-    public void setCraftCooldown(int ticks) {
-        this.craftCooldown = ticks;
-    }
-
-    @Override
     public boolean isIdle() {
-        return false;
+        return this.craftCooldown <= 0;
     }
 
     @Override
     public boolean hasTalisman() {
-        return false;
+        return talisman != null;
     }
 
     @Override
@@ -130,7 +223,6 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
             return new ItemStack(talisman);
         }
     }
-
     @Override
     public void setTalisman(Talisman talisman) {
         if(talisman == null){
@@ -140,7 +232,72 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
             FlammaTalisman fTalisman = (FlammaTalisman) talisman;
             this.talisman = fTalisman;
             this.inventory = NonNullList.withSize(fTalisman.getSmeltingSlot(), ItemStack.EMPTY);
+            this.energyStorage = new BarrelEnergyStorage(fTalisman.getSmeltingConsumption() * 200, fTalisman.getSmeltWaste() * 5);
             this.maxSmeltingCount = fTalisman.getMaxSmeltingCount();
+        }
+    }
+
+    @Override
+    public boolean putDropInInventoryAllSlots(IInventory source, EntityItem entity) {
+        if(inventory == null){
+            if(entity.getItem().getItem() instanceof Talisman){
+                return super.putDropInInventoryAllSlots(source,entity);
+            }else {
+                return false;
+            }
+        }else {
+            return super.putDropInInventoryAllSlots(source,entity);
+        }
+    }
+
+    @Override
+    public int getCraftCooldown() {
+        return this.craftCooldown;
+    }
+
+    @Override
+    public void setCraftCooldown(int ticks) {
+        this.craftCooldown = ticks;
+    }
+
+    @Override
+    public boolean matchingRequired() {
+        return this.matchingRequired;
+    }
+
+    @Override
+    public void setMatchingRequired(boolean required) {
+        this.matchingRequired = required;
+    }
+
+    @Override
+    public void setItems(NonNullList<ItemStack> inventory) {
+        this.inventory = inventory;
+    }
+
+
+    @Override
+    public String getBarrel() {
+        return this.barrel.toString();
+    }
+
+    @Override
+    public void setBarrel(ResourceLocation barrel) {
+        this.barrel = barrel;
+    }
+
+    @Override
+    public void dropAllItems() {
+        if(this.inventory != null){
+            super.dropAllItems();
+        }
+
+    }
+
+    @Override
+    public void dropLastItem() {
+        if(this.inventory != null) {
+            super.dropLastItem();
         }
     }
 
@@ -154,10 +311,7 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
         return this.inventory;
     }
 
-    @Override
-    public void consumeIngredients(RecipeIngredients ingredients) {
 
-    }
 
     @Override
     public int getSizeInventory() {
@@ -168,38 +322,4 @@ public class TileEntityNetherBarrel extends TileEntityLockableLoot implements IB
         return super.getBlockMetadata();
     }
 
-
-    public @NotNull World getWorld(){
-        return this.world;
-    }
-
-    public double getXPos() {
-        return (double)this.pos.getX() + 0.5D;
-    }
-
-
-    public double getYPos() {
-        return (double)this.pos.getY() + 0.5D;
-    }
-
-
-    public double getZPos() {
-        return (double)this.pos.getZ() + 0.5D;
-    }
-
-    @Override
-    public String getName() {
-        return null;
-    }
-
-
-    @Override
-    public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn) {
-        return null;
-    }
-
-    @Override
-    public String getGuiID() {
-        return null;
-    }
 }

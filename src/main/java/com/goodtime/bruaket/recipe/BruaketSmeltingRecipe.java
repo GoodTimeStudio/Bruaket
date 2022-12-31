@@ -9,6 +9,10 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.HashSet;
 
+/**
+ * @author Java0
+ * @date 2022/11/26
+ */
 public class BruaketSmeltingRecipe implements IBruaketRecipe {
 
     private final IIngredient ingredient;

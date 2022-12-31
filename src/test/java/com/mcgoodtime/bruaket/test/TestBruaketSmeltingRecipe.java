@@ -1,5 +1,7 @@
 package com.mcgoodtime.bruaket.test;
 
+import com.goodtime.bruaket.blocks.Barrel;
+import com.goodtime.bruaket.entity.TileEntityNetherBarrel;
 import com.goodtime.bruaket.init.ItemInitializer;
 import com.goodtime.bruaket.recipe.BruaketSmeltingRecipe;
 import com.goodtime.bruaket.recipe.FuzzyRecipeList;
@@ -49,7 +51,7 @@ public class TestBruaketSmeltingRecipe {
 
         RecipeListManager.INSTANCE.putFuzzyRecipeList(barrel, recipeList);
 
-        ArrayList<IBruaketRecipe> recipes = RecipeMatcher.SmeltingRecipeMatch(barrel, inventory);
+        ArrayList<IBruaketRecipe> recipes = RecipeMatcher.SmeltingRecipeMatch(new TileEntityNetherBarrel(barrel), barrel, inventory);
 
         assertFalse(recipes.isEmpty());
 
