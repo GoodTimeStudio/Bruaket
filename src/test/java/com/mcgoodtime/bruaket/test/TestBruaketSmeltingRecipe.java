@@ -1,6 +1,5 @@
 package com.mcgoodtime.bruaket.test;
 
-import com.goodtime.bruaket.blocks.Barrel;
 import com.goodtime.bruaket.entity.TileEntityNetherBarrel;
 import com.goodtime.bruaket.init.ItemInitializer;
 import com.goodtime.bruaket.recipe.BruaketSmeltingRecipe;

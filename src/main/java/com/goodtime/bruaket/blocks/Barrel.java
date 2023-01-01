@@ -39,8 +39,6 @@ import java.util.Objects;
  */
 
 public abstract class Barrel extends BlockContainer {
-
-
     String name;
 
     // FACING  方块的自定义属性，描述放置方块时玩家的朝向

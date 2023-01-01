@@ -41,11 +41,10 @@ public class BarrelUtil {
     }
 
     //桶下方的方块是否为空气
-    public static boolean bottomIsAir(IBarrelTile barrel) {
-        World worldIn = barrel.getWorld();
-        int x = MathHelper.floor(barrel.getXPos());
-        int y = MathHelper.floor(barrel.getYPos()) - 1;
-        int z = MathHelper.floor(barrel.getZPos());
+    public static boolean bottomIsAir(World worldIn, double xPos, double yPos, double zPos) {
+        int x = MathHelper.floor(xPos);
+        int y = MathHelper.floor(yPos) - 1;
+        int z = MathHelper.floor(zPos);
 
         Block atDown = worldIn.getBlockState(new BlockPos(x, y, z)).getBlock();
 

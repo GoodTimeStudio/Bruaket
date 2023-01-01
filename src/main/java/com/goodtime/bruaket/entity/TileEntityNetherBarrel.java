@@ -50,7 +50,7 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
     public @NotNull NBTTagCompound writeToNBT(@NotNull NBTTagCompound compound) {
         super.writeToNBT(compound);
 
-        if (this.inventory != null && !this.checkLootAndWrite(compound)) {
+        if (this.hasTalisman() && !this.checkLootAndWrite(compound)) {
             ItemStackHelper.saveAllItems(compound, this.getItems());
         }
 
@@ -122,11 +122,11 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
             if(this.getItems() == null ){
                 this.pullItems();
             }else if (!this.isFull()) {
-                matchingRequired = processWaitingTime(this.pullItems()) || matchingRequired;
+                matchingRequired = processPull() || matchingRequired;
             }
 
             if(this.hasTalisman()){
-                if (matchingRequired && this.isIdle() && !this.isEmpty()) {
+                if (canStart()) {
                     ArrayList<IBruaketRecipe> matchedRecipes = RecipeMatcher.SmeltingRecipeMatch(this, barrel, inventory);
                     if(!matchedRecipes.isEmpty()){
                         this.setCraftCooldown(this.talisman.getSmeltTime());
@@ -140,27 +140,31 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
         }
     }
 
-    private boolean processWaitingTime(boolean pullResult){
+    public boolean canStart(){
+        return waitingTime<=0 && energyStorage.hasEnergy() && matchingRequired && this.isIdle() && !this.isEmpty();
+    }
+
+
+    private boolean processPull(){
         if(waitingTime > 0){
-            this.setMatchingRequired(false);
             --this.waitingTime;
-            return false;
-        }else if(this.isEmpty() && pullResult){
-            this.waitingTime = 20;
-            return true;
+            return this.pullItems();
+        }else if(this.isEmpty()){
+            boolean pullResult = this.pullItems();
+            this.waitingTime = pullResult ? 30 : 0;
+            return pullResult;
         }else {
-            return false;
+            return this.pullItems();
         }
     }
 
     @Override
     public void processTick() {
-        if(this.craftCooldown > 0 && this.waitingTime <= 0){
+        if(this.hasTalisman() && this.craftCooldown > 0 && this.waitingTime <= 0){
             --craftCooldown;
             this.energyStorage.modifyEnergyStored(-this.talisman.getSmeltWaste());
         }
     }
-
 
     public void consumeIngredients(ArrayList<IBruaketRecipe> recipes) {
         int smeltCount = 0;
@@ -178,15 +182,26 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
                 ItemStack itemInBarrel = inventory.get(i);
                 if (itemInBarrel.isEmpty()) continue;
                 if (BarrelUtil.areStacksEqualIgnoreSize(itemInBarrel, smeltingIngredient)) {
-                    int count = ItemStackHelper.getAndSplit(this.getItems(), i, maxSmeltingCount).getCount();
+                    int count = consume(i, maxSmeltingCount - smeltCount);
+                    smeltCount += count;
                     smeltingResult.setCount(count);
                     outputResults.add(smeltingResult);
-                    smeltCount += count;
                     break;
                 }
             }
         }
     }
+
+    public int consume(int index, int remainingConsumption){
+        ItemStack itemInBarrel = inventory.get(index);
+        if(itemInBarrel.getCount() > remainingConsumption){
+            itemInBarrel.setCount(itemInBarrel.getCount() - remainingConsumption);
+            return remainingConsumption;
+        }else {
+            return ItemStackHelper.getAndSplit(this.getItems(), index, remainingConsumption).getCount();
+        }
+    }
+
 
     @Override
     public boolean mayOutput() {
@@ -223,11 +238,19 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
             return new ItemStack(talisman);
         }
     }
+
+    private void clearData(){
+        this.talisman = null;
+        this.inventory = null;
+        this.energyStorage = new BarrelEnergyStorage(0,0);
+        this.craftCooldown = 0;
+        this.outputResults.clear();
+    }
+
     @Override
     public void setTalisman(Talisman talisman) {
         if(talisman == null){
-            this.talisman = null;
-            this.inventory = null;
+            clearData();
         }else {
             FlammaTalisman fTalisman = (FlammaTalisman) talisman;
             this.talisman = fTalisman;
@@ -235,6 +258,14 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
             this.energyStorage = new BarrelEnergyStorage(fTalisman.getSmeltingConsumption() * 200, fTalisman.getSmeltWaste() * 5);
             this.maxSmeltingCount = fTalisman.getMaxSmeltingCount();
         }
+    }
+
+    @Override
+    public void dropTalisman() {
+        if(!this.isEmpty()){
+            this.dropAllItems();
+        }
+        super.dropTalisman();
     }
 
     @Override

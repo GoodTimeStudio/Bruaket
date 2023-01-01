@@ -103,7 +103,7 @@ public abstract class OrdinaryBarrelTile extends TileEntityLockableLoot implemen
         double y = this.getYPos() - 1;
         double z = this.getZPos();
 
-        if (BarrelUtil.bottomIsAir(this)) {
+        if (BarrelUtil.bottomIsAir(this.getWorld(), this.getXPos(), this.getYPos(), this.getZPos())) {
             if(!needDecrSize){
                 BehaviorDefaultDispenseItem.doDispense(worldIn, itemstack, 3, EnumFacing.DOWN, new PositionImpl(x, y, z));
             }else {

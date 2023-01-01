@@ -1,7 +1,6 @@
 package com.goodtime.bruaket.entity.bruaket;
 
 import com.goodtime.bruaket.items.Talisman;
-import com.goodtime.bruaket.recipe.RecipeIngredients;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -139,6 +138,8 @@ public interface IBarrelTile extends IInventory {
     void dropLastItem();
 
     void dropTalisman();
+
+    boolean canStart();
 
     /**
      * Return true if barrel can export recipe result

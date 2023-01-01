@@ -32,6 +32,7 @@ public class RecipeMatcher {
 
             if(fuzzyRecipe == null) {
                 tile.drop(itemStack, itemStack.getCount(), true);
+                return recipes;
             }
 
             if(fuzzyRecipe.getPossibleRecipesCount() == 1){

@@ -39,4 +39,9 @@ public class BarrelEnergyStorage extends EnergyStorage {
         }
     }
 
+    public boolean hasEnergy(){
+        return this.energy > 0;
+    }
+
+
 }

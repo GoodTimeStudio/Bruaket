@@ -107,7 +107,7 @@ public class TileEntityOrdinaryBarrel extends OrdinaryBarrelTile {
             if (!this.isFull()) {
                 matchingRequired = this.pullItems() || matchingRequired;
             }
-            if (matchingRequired && this.isIdle() && !this.isEmpty()) {
+            if (canStart()) {
                 if(this.hasTalisman()){
                     IBruaketRecipe recipe = RecipeMatcher.OrdinaryRecipeMatch(barrel, talisman.getRegistryName(), inventory);
                     if(recipe != null){
@@ -123,6 +123,10 @@ public class TileEntityOrdinaryBarrel extends OrdinaryBarrelTile {
         }
     }
 
+    @Override
+    public boolean canStart() {
+        return matchingRequired && this.isIdle() && !this.isEmpty();
+    }
 
     public void consumeIngredients(RecipeIngredients ingredients){
         for (IIngredient ingredient : ingredients.getIngredients()) {
