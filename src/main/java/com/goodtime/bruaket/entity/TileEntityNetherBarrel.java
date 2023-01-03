@@ -29,9 +29,11 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
 
     private NonNullList<ItemStack> inventory;
 
-    private int maxSmeltingCount;
+    private int currentSize;
 
     private long tickedGameTime;
+
+    ArrayList<IBruaketRecipe> matchedRecipes;
 
     private final ArrayList<ItemStack> outputResults = new ArrayList<>();
 
@@ -60,7 +62,7 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
             compound.setString("CustomName", this.customName);
         }
 
-        compound.setString("Barrel", this.getBarrel());
+        compound.setString("Barrel", this.barrel.toString());
 
         if(this.hasTalisman()){
             NBTTagCompound talismanTag = new NBTTagCompound();
@@ -91,7 +93,7 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
         }
 
         if(compound.hasKey("Barrel")){
-            this.setBarrel(new ResourceLocation(compound.getString("Barrel")));
+            this.barrel=new ResourceLocation(compound.getString("Barrel"));
         }
 
         this.setCraftCooldown(compound.getInteger("CraftCooldown"));
@@ -105,11 +107,14 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
             this.tickedGameTime = this.world.getTotalWorldTime();
             if (this.isIdle()) {
                 if(this.mayOutput()){
-                    for (int i = 0; i < this.outputResults.size(); i++) {
-                        ItemStack outputResult = outputResults.get(i);
-                        drop(outputResult,outputResult.getCount(),false);
-                        outputResults.remove(i);
-                        i=i-1;
+                    for (ItemStack outputResult : this.outputResults) {
+                        drop(outputResult, outputResult.getCount(), false);
+                    }
+
+                    if(matchingRequired){
+                        outputResults.clear();
+                    }else {
+                        consumeIngredients(matchedRecipes);
                     }
                 }
             }
@@ -127,7 +132,7 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
 
             if(this.hasTalisman()){
                 if (canStart()) {
-                    ArrayList<IBruaketRecipe> matchedRecipes = RecipeMatcher.SmeltingRecipeMatch(this, barrel, inventory);
+                    matchedRecipes = RecipeMatcher.SmeltingRecipeMatch(this, barrel, inventory);
                     if(!matchedRecipes.isEmpty()){
                         this.setCraftCooldown(this.talisman.getSmeltTime());
                         consumeIngredients(matchedRecipes);
@@ -147,18 +152,32 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
 
     private boolean processPull(){
         if(waitingTime > 0){
+            boolean pullResult = this.pullItems();
+            if(pullResult) this.currentSize = getStoredSize();
             --this.waitingTime;
-            return this.pullItems();
+            return pullResult;
         }else if(this.isEmpty()){
             boolean pullResult = this.pullItems();
-            this.waitingTime = pullResult ? 30 : 0;
+            if(pullResult){
+                this.currentSize = getStoredSize();
+                this.waitingTime = 30;
+            }
             return pullResult;
-        }else {
-            return this.pullItems();
         }
+        return this.pullItems();
+
     }
 
-    @Override
+    int getStoredSize(){
+        int num = 0;
+        for (ItemStack itemStack : this.inventory) {
+            if(itemStack.isEmpty()) continue;
+            num++;
+        }
+        return num;
+    }
+
+
     public void processTick() {
         if(this.hasTalisman() && this.craftCooldown > 0 && this.waitingTime <= 0){
             --craftCooldown;
@@ -183,6 +202,7 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
                 if (itemInBarrel.isEmpty()) continue;
                 if (BarrelUtil.areStacksEqualIgnoreSize(itemInBarrel, smeltingIngredient)) {
                     int count = consume(i, maxSmeltingCount - smeltCount);
+                    this.matchingRequired = checkSize();
                     smeltCount += count;
                     smeltingResult.setCount(count);
                     outputResults.add(smeltingResult);
@@ -200,6 +220,12 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
         }else {
             return ItemStackHelper.getAndSplit(this.getItems(), index, remainingConsumption).getCount();
         }
+    }
+
+    private boolean checkSize(){
+        boolean b = getStoredSize() != this.currentSize;
+        currentSize = getStoredSize();
+        return b;
     }
 
 
@@ -223,22 +249,6 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
         return talisman != null;
     }
 
-    @Override
-    public ItemStack putTalisman(Talisman talisman) {
-
-        if(!(talisman instanceof FlammaTalisman)){
-            return new ItemStack(talisman);
-        }
-
-        if (!this.hasTalisman()) {
-            this.setTalisman(talisman);
-            this.markDirty();
-            return ItemStack.EMPTY;
-        } else {
-            return new ItemStack(talisman);
-        }
-    }
-
     private void clearData(){
         this.talisman = null;
         this.inventory = null;
@@ -256,7 +266,6 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
             this.talisman = fTalisman;
             this.inventory = NonNullList.withSize(fTalisman.getSmeltingSlot(), ItemStack.EMPTY);
             this.energyStorage = new BarrelEnergyStorage(fTalisman.getSmeltingConsumption() * 200, fTalisman.getSmeltWaste() * 5);
-            this.maxSmeltingCount = fTalisman.getMaxSmeltingCount();
         }
     }
 
@@ -271,7 +280,7 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
     @Override
     public boolean putDropInInventoryAllSlots(IInventory source, EntityItem entity) {
         if(inventory == null){
-            if(entity.getItem().getItem() instanceof Talisman){
+            if(entity.getItem().getItem() instanceof FlammaTalisman){
                 return super.putDropInInventoryAllSlots(source,entity);
             }else {
                 return false;
@@ -302,22 +311,6 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
     }
 
     @Override
-    public void setItems(NonNullList<ItemStack> inventory) {
-        this.inventory = inventory;
-    }
-
-
-    @Override
-    public String getBarrel() {
-        return this.barrel.toString();
-    }
-
-    @Override
-    public void setBarrel(ResourceLocation barrel) {
-        this.barrel = barrel;
-    }
-
-    @Override
     public void dropAllItems() {
         if(this.inventory != null){
             super.dropAllItems();
@@ -343,14 +336,9 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
     }
 
 
-
     @Override
     public int getSizeInventory() {
         return this.inventory.size();
-    }
-
-    public int getBlockMetadata() {
-        return super.getBlockMetadata();
     }
 
 }

@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -140,9 +139,9 @@ public abstract class Barrel extends BlockContainer {
 
         if (tileentity instanceof IBarrelTile) {
             IBarrelTile barrel = (IBarrelTile) tileentity;
-            if(barrel.getItems() != null && !barrel.isEmpty()){
+            if(barrel.getItems() != null){
                 barrel.dropTalisman();
-                InventoryHelper.dropInventoryItems(worldIn, pos, barrel);
+                barrel.dropAllItems();
                 worldIn.updateComparatorOutputLevel(pos, this);
             }
         }

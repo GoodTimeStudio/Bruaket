@@ -4,8 +4,6 @@ import com.goodtime.bruaket.items.Talisman;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,7 +62,12 @@ public interface IBarrelTile extends IInventory {
 
     long getTickedGameTime();
 
-    void processTick();
+    /**
+     * Return true if barrel is not working
+     *
+     * @return boolean
+     */
+    boolean isIdle();
 
     /**
      * Set the time required for the barrel to complete the current recipe
@@ -73,14 +76,13 @@ public interface IBarrelTile extends IInventory {
      */
     void setCraftCooldown(int ticks);
 
-    int getCraftCooldown();
 
     /**
-     * Return true if barrel is not working
+     * Get the remaining time of current work
      *
-     * @return boolean
+     * @return int
      */
-    boolean isIdle();
+    int getCraftCooldown();
 
     /**
      * Return if barrel has talisman
@@ -118,27 +120,62 @@ public interface IBarrelTile extends IInventory {
      */
     List<ItemStack> getItems();
 
+
+    /**
+     * Return true if barrel need match recipe
+     *
+     * @return boolean
+     */
     boolean matchingRequired();
 
+    /**
+     * set matching required
+     *
+     * @return boolean
+     */
     void setMatchingRequired(boolean required);
 
 
-    void setItems(NonNullList<ItemStack> inventory);
-
-    String getBarrel();
-
-    void setBarrel(ResourceLocation barrel);
-
+    /**
+     * Pull dropped item from top of barrel
+     *
+     * @return boolean
+     */
     boolean pullItems();
 
+
+    /**
+     * Put drop in barrel`s inventory
+     *
+     * @param source 源
+     * @param entity 实体
+     * @return boolean
+     */
     boolean putDropInInventoryAllSlots(IInventory source, EntityItem entity);
 
+
+    /**
+     * Drop all item from barrel`s inventory
+     */
     void dropAllItems();
 
+
+    /**
+     * Drop the last item from the bucket
+     */
     void dropLastItem();
 
+    /**
+     * Drop the talisman from the bucket
+     */
     void dropTalisman();
 
+
+    /**
+     * Return true if barrel can start working
+     *
+     * @return boolean
+     */
     boolean canStart();
 
     /**

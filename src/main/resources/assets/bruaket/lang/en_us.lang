@@ -1,4 +1,17 @@
+#Barrel
 tile.bruaket.wooden_barrel.name=Wooden Barrel
 tile.bruaket.iron_barrel.name=Iron Barrel
 tile.bruaket.tinker_barrel.name=Tinker Barrel
 tile.bruaket.nether_barrel.name=Nether Barrel
+
+#Talisman
+item.bruaket.wood_talisman.name=Wood Talisman
+item.bruaket.stone_talisman.name=Stone Talisman
+item.bruaket.iron_talisman.name=Iron Talisman
+item.bruaket.water_talisman.name=Water Talisman
+item.bruaket.fire_talisman.name=Fire Talisman
+item.bruaket.ultra_flamma_talisman.name=Ultra Flamma Talisman
+item.bruaket.maxima_flamma_talisman.name=Maxima Flamma Talisman
+
+#Item
+item.bruaket.bucket_seed.name=Bucket Seed

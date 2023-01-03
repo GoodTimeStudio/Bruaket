@@ -22,7 +22,10 @@ public class ItemInitializer {
 
     //Item
     public static Item logo;
-    public static Item bucket;
+
+    //public static Item bucket;
+
+    public static Item bucketSeed;
 
     //Talisman
     public static Talisman stone_talisman;
@@ -41,7 +44,9 @@ public class ItemInitializer {
     public static void registerItems() {
         //Item
         logo = Talisman.getItem("logo");
-        bucket = Talisman.getItem("bucket").setCreativeTab(Bruaket.CREATIVE_TAB);
+        //bucket = Talisman.getItem("bucket").setCreativeTab(Bruaket.CREATIVE_TAB);
+
+        bucketSeed = Talisman.getItem("bucket_seed").setCreativeTab(Bruaket.CREATIVE_TAB);
 
         //Barrel
         wooden_barrel = new OrdinaryBarrel("wooden_barrel", 3.0F);

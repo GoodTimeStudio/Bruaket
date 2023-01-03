@@ -52,7 +52,7 @@ public class TileEntityOrdinaryBarrel extends OrdinaryBarrelTile {
             compound.setString("CustomName", this.customName);
         }
 
-        compound.setString("Barrel", this.getBarrel());
+        compound.setString("Barrel", this.barrel.toString());
 
         if(this.hasTalisman()){
             NBTTagCompound talismanTag = new NBTTagCompound();
@@ -76,7 +76,7 @@ public class TileEntityOrdinaryBarrel extends OrdinaryBarrelTile {
         }
 
         if(compound.hasKey("Barrel")){
-            this.setBarrel(new ResourceLocation(compound.getString("Barrel")));
+            this.barrel = new ResourceLocation(compound.getString("Barrel"));
         }
 
         if(compound.hasKey("Talisman")){
@@ -143,25 +143,6 @@ public class TileEntityOrdinaryBarrel extends OrdinaryBarrelTile {
     }
 
     @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
-        this.getItems().set(index, stack);
-        if (stack.getCount() > this.getInventoryStackLimit()) {
-            stack.setCount(this.getInventoryStackLimit());
-        }
-        this.markDirty();
-    }
-
-    public ItemStack putTalisman(Talisman talisman) {
-        if (!this.hasTalisman()) {
-            this.setTalisman(talisman);
-            this.markDirty();
-            return ItemStack.EMPTY;
-        } else {
-            return new ItemStack(talisman);
-        }
-    }
-
-    @Override
     public void setTalisman(Talisman talisman) {
         this.talisman = talisman;
     }
@@ -183,7 +164,6 @@ public class TileEntityOrdinaryBarrel extends OrdinaryBarrelTile {
         return this.tickedGameTime;
     }
 
-    @Override
     public void processTick() {
         if(this.craftCooldown >0){
             --craftCooldown;
@@ -216,23 +196,8 @@ public class TileEntityOrdinaryBarrel extends OrdinaryBarrelTile {
     }
 
     @Override
-    public void setItems(NonNullList<ItemStack> inventory) {
-        this.inventory = inventory;
-    }
-
-    @Override
     public int getCraftCooldown() {
         return this.craftCooldown;
-    }
-
-    @Override
-    public String getBarrel() {
-        return this.barrel.toString();
-    }
-
-    @Override
-    public void setBarrel(ResourceLocation barrel) {
-        this.barrel = barrel;
     }
 
     @Override
@@ -245,8 +210,5 @@ public class TileEntityOrdinaryBarrel extends OrdinaryBarrelTile {
         return this.inventory.size();
     }
 
-    public int getBlockMetadata() {
-        return super.getBlockMetadata();
-    }
 
 }

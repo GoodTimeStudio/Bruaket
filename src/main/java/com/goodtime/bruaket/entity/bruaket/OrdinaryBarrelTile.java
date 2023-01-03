@@ -25,10 +25,9 @@ public abstract class OrdinaryBarrelTile extends TileEntityLockableLoot implemen
 
     @Override
     public void markDirty(){
-        super.markDirty();
         this.setMatchingRequired(true);
+        super.markDirty();
     }
-
     @Override
     public boolean pullItems() {
         List<EntityItem> items = TileEntityHopper.getCaptureItems(this.getWorld(), this.getXPos(), this.getYPos(), this.getZPos());
@@ -61,6 +60,16 @@ public abstract class OrdinaryBarrelTile extends TileEntityLockableLoot implemen
                 entity.setItem(result);
                 return false;
             }
+        }
+    }
+
+    public ItemStack putTalisman(Talisman talisman) {
+        if (!this.hasTalisman()) {
+            this.setTalisman(talisman);
+            this.markDirty();
+            return ItemStack.EMPTY;
+        } else {
+            return new ItemStack(talisman);
         }
     }
 
