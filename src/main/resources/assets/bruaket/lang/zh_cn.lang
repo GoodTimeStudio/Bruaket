@@ -15,3 +15,10 @@ item.bruaket.maxima_flamma_talisman.name=焱咒符
 
 #Item
 item.bruaket.bucket_seed.name=桶之种
+
+#Config
+config.bruaket.general.recipe_time_multiplier=合成时间倍数
+config.bruaket.general.smelting_consumption_multiplier=熔炼时间倍数
+
+config.bruaket.general.recipe_time_multiplier.tooltip=该数值将会和CraftTweaker配置的合成耗时相乘得出物品合成的最终耗时。
+config.bruaket.general.smelting_consumption_multiplier.tooltip=该数值将会和熔炼符咒中设置的能量总消耗相乘得出物品熔炼的最终消耗。

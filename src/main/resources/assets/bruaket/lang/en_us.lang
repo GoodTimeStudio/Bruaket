@@ -15,3 +15,10 @@ item.bruaket.maxima_flamma_talisman.name=Maxima Flamma Talisman
 
 #Item
 item.bruaket.bucket_seed.name=Bucket Seed
+
+#Config
+config.bruaket.general.recipe_time_multiplier=RecipeTimeMultiplier
+config.bruaket.general.smelting_consumption_multiplier=SmeltingConsumptionMultiplier
+
+config.bruaket.general.recipe_time_multiplier.tooltip=This value will be multiplied by the recipe time configured in the CraftTweaker configuration file to obtain the recipe synthesis time
+config.bruaket.general.smelting_consumption_multiplier.tooltip=This value will be multiplied by the total consumption set in SMelting talisman to obtain the specific consumption of that talisman

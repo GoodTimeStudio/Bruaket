@@ -1,5 +1,6 @@
 package com.goodtime.bruaket.extra.crafttweaker;
 
+import com.goodtime.bruaket.config.BruaketConfig;
 import com.goodtime.bruaket.core.Bruaket;
 import com.goodtime.bruaket.init.ItemInitializer;
 import com.goodtime.bruaket.recipe.*;
@@ -84,14 +85,14 @@ public class BruaketTweaker {
             this.output = output;
             this.ingredients = ingredients;
             this.talisman = new ResourceLocation(talisman);
-            this.time = time;
+            this.time = time * BruaketConfig.recipeTimeMultiplier;
         }
 
         @Override
         public void apply () {
             BruaketOrdinaryRecipe recipe = new BruaketOrdinaryRecipe(barrel, output, time, new RecipeIngredients(talisman, ingredients));
             for (int i = 0; i < ingredients.length; i++) {
-                ingredients[i] =handleOreDict(ingredients[i]);
+                ingredients[i] = handleOreDict(ingredients[i]);
             }
             FuzzyRecipeList fuzzyRecipeList = RecipeListManager.INSTANCE.getFuzzyRecipeList(barrel);
             if(fuzzyRecipeList == null){

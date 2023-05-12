@@ -29,7 +29,7 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
 
     private NonNullList<ItemStack> inventory;
 
-    private int currentSize;
+    private int currentStoredSize;
 
     private long tickedGameTime;
 
@@ -153,13 +153,13 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
     private boolean processPull(){
         if(waitingTime > 0){
             boolean pullResult = this.pullItems();
-            if(pullResult) this.currentSize = getStoredSize();
+            if(pullResult) this.currentStoredSize = getCurrentStoredSize();
             --this.waitingTime;
             return pullResult;
         }else if(this.isEmpty()){
             boolean pullResult = this.pullItems();
             if(pullResult){
-                this.currentSize = getStoredSize();
+                this.currentStoredSize = getCurrentStoredSize();
                 this.waitingTime = 30;
             }
             return pullResult;
@@ -168,7 +168,7 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
 
     }
 
-    int getStoredSize(){
+    int getCurrentStoredSize(){
         int num = 0;
         for (ItemStack itemStack : this.inventory) {
             if(itemStack.isEmpty()) continue;
@@ -223,8 +223,8 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
     }
 
     private boolean checkSize(){
-        boolean b = getStoredSize() != this.currentSize;
-        currentSize = getStoredSize();
+        boolean b = getCurrentStoredSize() != this.currentStoredSize;
+        currentStoredSize = getCurrentStoredSize();
         return b;
     }
 

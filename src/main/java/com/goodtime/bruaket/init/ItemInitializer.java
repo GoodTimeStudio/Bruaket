@@ -61,9 +61,9 @@ public class ItemInitializer {
         iron_talisman = new Talisman("iron_talisman");
         water_talisman = new Talisman("water_talisman");
 
-        fire_talisman = new FlammaTalisman("fire_talisman",1,1, 200,5);
-        ultra_flamma_talisman = new FlammaTalisman("ultra_flamma_talisman",3,8, 180, 60);
-        maxima_flamma_talisman = new FlammaTalisman("maxima_flamma_talisman",9,32, 130, 760);
+        fire_talisman = new FlammaTalisman("fire_talisman",1,1, 200,1000);
+        ultra_flamma_talisman = new FlammaTalisman("ultra_flamma_talisman",3,8, 180, 10800);
+        maxima_flamma_talisman = new FlammaTalisman("maxima_flamma_talisman",9,32, 130, 98800);
     }
 
 }
