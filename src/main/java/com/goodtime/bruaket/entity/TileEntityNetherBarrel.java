@@ -130,23 +130,21 @@ public class TileEntityNetherBarrel extends PoweredBarrel {
                 matchingRequired = processPull() || matchingRequired;
             }
 
-            if(this.hasTalisman()){
-                if (canStart()) {
-                    matchedRecipes = RecipeMatcher.SmeltingRecipeMatch(this, barrel, inventory);
-                    if(!matchedRecipes.isEmpty()){
-                        this.setCraftCooldown(this.talisman.getSmeltTime());
-                        consumeIngredients(matchedRecipes);
-                        markDirty();
-                    }else{
-                        matchingRequired = false;
-                    }
+            if (canStart()) {
+                matchedRecipes = RecipeMatcher.SmeltingRecipeMatch(this, barrel, inventory);
+                if(!matchedRecipes.isEmpty()){
+                    this.setCraftCooldown(this.talisman.getSmeltTime());
+                    consumeIngredients(matchedRecipes);
+                    markDirty();
+                }else{
+                    matchingRequired = false;
                 }
             }
         }
     }
 
     public boolean canStart(){
-        return waitingTime<=0 && energyStorage.hasEnergy() && matchingRequired && this.isIdle() && !this.isEmpty();
+        return waitingTime<=0 && this.hasTalisman() &&  matchingRequired && this.isIdle() && !this.isEmpty() && energyStorage.hasEnergy();
     }
 
 
