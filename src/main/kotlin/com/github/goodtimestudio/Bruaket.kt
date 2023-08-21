@@ -6,12 +6,15 @@
 package com.github.goodtimestudio
 
 import net.fabricmc.api.ModInitializer
+import net.minecraft.text.Text
 import org.slf4j.LoggerFactory
 
 object Bruaket : ModInitializer {
-    private val logger = LoggerFactory.getLogger("bruaket")
+	val MOD_ID = "桶 Bruaket"
+    val LOGGER = LoggerFactory.getLogger(MOD_ID)
 
 	override fun onInitialize() {
-		logger.info("Hello Fabric world!")
+		LOGGER.info("正在加载桶模组！ Loading Bruaket mod !")
+		LOGGER.info("加载完成！ Loading completed !")
 	}
 }
