@@ -1,6 +1,6 @@
 /*
  * This file is part of Bruaket, licensed under the MIT License (MIT).
- * Copyright (c) GoodTime Studio 2023.
+ * Copyright (c) 2023. GoodTime Studio
  */
 
 package com.github.goodtimestudio.mixin.client;
