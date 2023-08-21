@@ -1,0 +1,20 @@
+/*
+ * This file is part of Bruaket, licensed under the MIT License (MIT).
+ * Copyright (c) GoodTime Studio 2023.
+ */
+
+package com.github.goodtimestudio.mixin;
+
+import net.minecraft.server.MinecraftServer;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(MinecraftServer.class)
+public class BruaketMixin {
+	@Inject(at = @At("HEAD"), method = "loadWorld")
+	private void init(CallbackInfo info) {
+		// This code is injected into the start of MinecraftServer.loadWorld()V
+	}
+}
