@@ -5,5 +5,8 @@
 
 package com.github.goodtimestudio.init
 
-class InitStorage {
+import net.minecraft.item.Item
+
+class InitData {
+    var ItemMap = HashMap<String,Item>()
 }
