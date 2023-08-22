@@ -18,5 +18,5 @@ class Items {
     var MAXIMA_Flamma_TALISMAN = Item(FabricItemSettings().maxCount(1))
 
     var BARREL_SEED = Item(FabricItemSettings().maxCount(1))
-    var BARREL_PATTERN = Item(FabricItemSettings())
+    //var BARREL_PATTERN = Item(FabricItemSettings())
 }
